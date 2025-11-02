@@ -1,0 +1,27 @@
+# Core RAG
+fastapi
+uvicorn
+python-dotenv
+langchain-community
+
+# Embeddings & Vector Store
+sentence-transformers
+chromadb
+numpy
+
+# LLM
+langchain-huggingface
+
+# Data Collection
+requests
+beautifulsoup4
+aiohttp
+
+# Testing & Evaluation
+pytest
+pytest-asyncio
+scikit-learn
+pydantic
+pytest-cov
+flake8
+black
