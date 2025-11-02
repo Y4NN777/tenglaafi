@@ -206,16 +206,11 @@ tenglaafi/
 │   │   ├── test_embeddings.py                   # Test embeddings
 │   │   ├── test_vector_store.py                 # Test ChromaDB
 │   │   ├── test_llm.py                          # Test LLM
-│   │   └── test_rag_components.py               # Test composants RAG
 │   ├── integration/                             # Tests d'intégration
 │   │   ├── __init__.py
 │   │   ├── test_rag_pipeline.py                 # Test pipeline complet
-│   │   ├── test_api_endpoints.py                # Test API
-│   │   └── test_data_collection.py              # Test collecte complète
-│   └── performance/                             # Tests de performance
-│       ├── __init__.py
-│       └── test_load.py
-│
+│   │   └──  test_api_endpoints.py                # Test API
+│   |
 ├── frontend/                                    # Interface utilisateur
 │   ├── index.html
 │   ├── style.css
