@@ -3,6 +3,7 @@ fastapi
 uvicorn
 python-dotenv
 langchain-community
+langchain-text-splitters>=0.2
 
 # Embeddings & Vector Store
 sentence-transformers
