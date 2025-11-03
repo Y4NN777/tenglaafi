@@ -1,23 +1,69 @@
-#config.py
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 
-class Config:
-    """
-    Configuration centrale du projet TengLaafi RAG.
-    Gère les chemins, modèles et paramètres globaux.
-    """
+load_dotenv()
 
-    # --- Dossiers ---
-    DATA_PATH = os.getenv("DATA_PATH", "data/corpus.json")
-    VECTOR_DB_PATH = os.getenv("VECTOR_DB_PATH", "data/vector_store")
+# Chemins
+BASE_DIR = Path(__file__).parent.parent.parent
+DATA_DIR = BASE_DIR / "data"
+CHROMA_DIR = BASE_DIR / "chroma_db"
+RESEARCH_DIR = BASE_DIR / "research"
+LOG_FILE = BASE_DIR / "app.log"
 
-    # --- Modèles ---
-    EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
-    LLM_MODEL = os.getenv("LLM_MODEL", "mistralai/Mistral-7B-Instruct-v0.2")
+# Logging configuration
+LOGGING_CONFIG = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        },
+    },
+    'handlers': {
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': str(LOG_FILE),
+            'formatter': 'standard'
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard'
+        }
+    },
+    'root': {
+        'handlers': ['file', 'console'],
+        'level': 'INFO',
+    },
+}
 
-    # --- RAG parameters ---
-    TOP_K_RESULTS = int(os.getenv("TOP_K_RESULTS", 5))
-    MAX_TOKENS = int(os.getenv("MAX_TOKENS", 512))
+# HuggingFace LLM (100% open source)
+HF_TOKEN = os.getenv("HF_TOKEN")
+LLM_MODEL = os.getenv("LLM_MODEL", "mistral")  # mistral|meditron|llama
 
-    # --- Autres paramètres ---
-    DEBUG_MODE = bool(int(os.getenv("DEBUG_MODE", 1)))
+# Configuration Embeddings (Amélioré pour médical)
+EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
+EMBEDDING_DIMENSION = 768  # Plus riche que 384
+
+# Configuration ChromaDB
+CHROMA_COLLECTION_NAME = "tropical_medicine"
+CHROMA_PERSIST_DIR = str(CHROMA_DIR)
+
+# Configuration RAG (Chunking amélioré)
+TOP_K_DOCUMENTS = 5
+CHUNK_SIZE = 1000  # Augmenté pour contexte médical
+CHUNK_OVERLAP = 200
+
+# Configuration LLM
+LLM_MAX_TOKENS = 512
+LLM_TEMPERATURE = 0.2
+
+# Configuration API
+API_HOST = "0.0.0.0"
+API_PORT = 8000
+API_RELOAD = True
+
+# Validation
+if not HF_TOKEN:
+    print("  HF_TOKEN manquant dans .env")
+    print("Obtenez-le gratuitement sur https://huggingface.co/settings/tokens")
