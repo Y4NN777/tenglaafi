@@ -74,7 +74,7 @@ from pathlib import Path
 import mimetypes
 
 # Configuration du logging
-from ..core import LOGGING_CONFIG
+from ..core.config import LOGGING_CONFIG
 import logging.config
 
 logging.config.dictConfig(LOGGING_CONFIG)
@@ -148,7 +148,7 @@ class WebScraper:
 
         try:
             headers = {'User-Agent': 'Mozilla/5.0 (Medical Research Bot)'}
-            response = requests.get(url, timneout=timeout, headers=headers)
+            response = requests.get(url, timeout=timeout, headers=headers)
             response.raise_for_status()
             
             # Detecter le type de contenu
