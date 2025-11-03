@@ -68,7 +68,7 @@ install: ## Installe les dépendances
 	$(PIP) install -r requirements.txt
 	@$(ECHO) "$(GREEN)Installation terminée.$(NC)"
 
-.PHONY: conda-env conda-install conda-info
+.PHONY: conda-env conda-install conda-info conda-activate-install conda-activate
 
 conda-env: ## Crée (si besoin) l'environnement conda 'tenglaafi'
 	@$(ECHO) "$(GREEN)Configuration de l'environnement conda...$(NC)"
@@ -93,6 +93,31 @@ conda-install: ## Installe requirements dans l'env conda sans l'activer dans le 
 		conda run -n tenglaafi $(PIP) install -r requirements.txt; \
 	else \
 		$(ECHO) "$(RED)Conda introuvable. Utilise plutôt: make install$(NC)"; \
+		exit 1; \
+	fi
+
+conda-activate: ## Active l'env conda 'tenglaafi' dans le shell courant
+	@$(ECHO) "$(GREEN)Activation de l'env conda 'tenglaafi'...$(NC)"
+	@if command -v conda >/dev/null 2>&1; then \
+		eval "$$(conda shell.bash hook)"; \
+		conda activate tenglaafi; \
+		$(ECHO) "$(YELLOW)Environnement 'tenglaafi' activé.$(NC)"; \
+	else \
+		$(ECHO) "$(RED)Conda introuvable.$(NC)"; \
+		exit 1; \
+	fi
+
+conda-activate-install: ## Active l'env conda et installe les dépendances (pour shell interactif)
+	@$(ECHO) "$(GREEN)Activation de l'env conda et installation des dépendances...$(NC)"
+	@if command -v conda >/dev/null 2>&1; then \
+		eval "$$(conda shell.bash hook)"; \
+		conda activate tenglaafi; \
+		$(ECHO) "$(YELLOW)Environnement 'tenglaafi' activé.$(NC)"; \
+		$(ECHO) "$(YELLOW)Installation des dépendances...$(NC)"; \
+		$(PIP) install -r requirements.txt; \
+		$(ECHO) "$(GREEN)Installation terminée. Vous êtes dans l'env 'tenglaafi'.$(NC)"; \
+	else \
+		$(ECHO) "$(RED)Conda introuvable.$(NC)"; \
 		exit 1; \
 	fi
 
