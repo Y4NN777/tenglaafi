@@ -236,8 +236,8 @@ git merge hotfix/correction-urgente
 
 ### Communication
 
-- **Daily standup** : 15 min chaque matin
-- **Slack** : Communication asynchrone
+- **Daily standup and Checkins** : Meet Google pendant micro-milestones 
+- **Whatsapp** : Communication asynchrone
 - **Trello** : Tracking des tâches
 
 ### Code Review
