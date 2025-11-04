@@ -1,69 +1,56 @@
-"""tropical_medical_data_collector
-
-Module de collecte de documents médicaux tropicaux.
-
-Ce module fournit la classe `TropicalMedicalDataCollector` qui orchestre la
-collecte de documents depuis plusieurs sources (WHO, PubMed, bases de plantes
-médicinales et PDFs locaux), normalise les documents en un format commun et
-produit des artefacts persistants (`data/corpus.json`, `data/sources.txt`).
-
-Docstrings détaillées sont fournies pour la classe et les méthodes publiques
-afin de faciliter la contribution et les tests.
 """
+src/data_collection/tropical_medical_data_collector.py
+Orchestrateur de collecte pour données médicales tropicales
 
+Utilise les utilitaires de data_utils pour la logique bas niveau.
+Se concentre sur la stratégie de collecte et l'orchestration.
+"""
 import json
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Optional
 import logging
 import time
+import requests
+from urllib.parse import urlparse
 
-from ..core.config import LOGGING_CONFIG
+import os, sys
+from pathlib import Path as _Path
+
+# Trouver le root du projet en recherchant l'ancêtre nommé 'src'.
+# Cela fonctionne que le module soit exécuté comme script ou importé.
+_p = _Path(__file__).resolve()
+project_root = None
+for anc in _p.parents:
+    if anc.name == "src":
+        project_root = str(anc.parent)
+        break
+if project_root is None:
+    # Fallback raisonnable (deux niveaux au-dessus)
+    project_root = str(_p.parents[2]) if len(_p.parents) > 2 else str(_p.parent)
+
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from src.core.config import LOGGING_CONFIG
 import logging.config
 
-# Import des utilitaires
-from ..rag_pipeline.data_utils import WebScraper, PubMedAPI, PDFLoader
+# Import des utilitaires via le package `src`
+from src.rag_pipeline.data_utils import WebScraper, PubMedAPI, PDFLoader
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
 
 
 class TropicalMedicalDataCollector:
-    """Orchestrateur de collecte de documents médicaux tropicaux.
-
-    Cette classe regroupe et normalise des documents provenant de plusieurs
-    sources hétérogènes pour constituer un corpus exploitable par le pipeline
-    RAG.
-
-    Contract:
-    - Input: paramètres de configuration (répertoires de sortie, URLs, etc.)
-    - Output: fichiers persistés (``data/corpus.json``, ``data/sources.txt``)
-
-    Attributs importants
-    ---------------------
-    output_dir : Path
-        Répertoire où seront écrits les fichiers de sortie.
-    corpus : list
-        Liste accumulée des documents collectés (chaque document est un dict
-        normalisé avec au minimum les clés: ``id``, ``title``, ``content``,
-        ``source``).
-    scraper : WebScraper
-        Utilitaire pour télécharger et parser des pages web (WHO, plantes,...)
-    pubmed : PubMedAPI
-        Client pour interroger l'API PubMed.
-    pdf_loader : PDFLoader
-        Utilitaire pour extraire du texte depuis des fichiers PDF.
-
-    Exceptions et erreurs
-    ---------------------
-    Les erreurs réseau et d'extraction sont loggées mais n'interrompent pas
-    l'exécution globale : la collecte est tolérante et renvoie un corpus
-    partiel en cas d'échecs ponctuels.
-
-    Exemple
-    -------
-    >>> from src.data_collection.tropical_medical_data_collector import TropicalMedicalDataCollector
-    >>> c = TropicalMedicalDataCollector(output_dir="data")
-    >>> c.generate_corpus(min_docs=500)
+    """
+    Orchestrateur de collecte de données médicales tropicales
+    
+    Responsabilités:
+    - Définir les sources médicales pertinentes
+    - Orchestrer la collecte depuis WHO, PubMed, Plants, PDFs
+    - Construire un corpus unifié de 500+ documents
+    - Sauvegarder le corpus et les métadonnées
+    - Tracker les échecs et implémenter des stratégies de récupération
     """
     
     # === CONFIGURATION DES SOURCES ===
@@ -78,8 +65,8 @@ class TropicalMedicalDataCollector:
         "https://www.who.int/fr/news-room/fact-sheets/detail/onchocerciasis",
         "https://www.who.int/fr/news-room/fact-sheets/detail/soil-transmitted-helminth-infections",
         "https://www.who.int/fr/news-room/fact-sheets/detail/chagas-disease-(american-trypanosomiasis)",
-        "https://www.who.int/fr/news-room/fact-sheets/detail/african-trypanosomiasis",
-        "https://www.who.int/fr/health-topics/neglected-tropical-diseases",
+        "https://www.who.int/news-room/fact-sheets/detail/trypanosomiasis-human-african-(sleeping-sickness)",
+        "https://www.who.int/health-topics/neglected-tropical-diseases",
         "https://www.who.int/fr/news-room/fact-sheets",
         "https://www.paho.org/en/fact-sheets",
         "https://www.who.int/news-room/fact-sheets/detail/vector-borne-diseases",
@@ -91,8 +78,6 @@ class TropicalMedicalDataCollector:
         "https://www.who.int/fr/news-room/fact-sheets/detail/yaws",
         "https://www.who.int/fr/news-room/fact-sheets/detail/echinococcosis",
         "https://www.who.int/fr/news-room/fact-sheets/detail/foodborne-trematodiases",
-        "https://www.who.int/fr/news-room/fact-sheets/detail/cryptosporidiosis",
-        "https://www.who.int/fr/news-room/fact-sheets/detail/blindness-and-vision-loss",
         "https://www.paho.org/en/topics/neglected-tropical-and-vector-borne-diseases"
     ]
 
@@ -116,7 +101,6 @@ class TropicalMedicalDataCollector:
         "https://journals.openedition.org/ethnoecologie/8925?lang=en",
         "https://pmc.ncbi.nlm.nih.gov/articles/PMC8199769/",
         "https://www.scribd.com/document/516515095/La-banque-de-donnees-ethnobotaniques-PHARMEL-sur-les-plantes-medicinales-africaines",
-        "https://www.wahooas.org/web-ooas/sites/default/files/publications/2318/pharmacopee-de-lafrique-de-louest-french.pdf",
         "https://www.ebsco.com/research-starters/health-and-medicine/traditional-african-medicine",
         "https://africanplantdatabase.ch/",
         "https://gbif.biodiversity.be/nl/dataset/49c5b4ac-e3bf-401b-94b1-c94a2ad5c8d6",
@@ -132,6 +116,27 @@ class TropicalMedicalDataCollector:
         "https://hsd-fmsb.org/index.php/hra/article/view/5940"
     ]
     
+    # === CONFIGURATION AVANCEE ===
+    
+    # Domaines autorisés pour SSL non-vérifié (certificats expirés connus)
+    SSL_WHITELIST = [
+        "wahooas.org",
+        "wahoas.org"
+    ]
+    
+    # Domaines connus pour être des portails non-scrapables
+    PORTAL_DOMAINS = [
+        "africanplantdatabase.ch",
+        "gbif.biodiversity.be",
+        "plants.jstor.org"
+    ]
+    
+    # Domaines nécessitant authentification
+    AUTH_REQUIRED_DOMAINS = [
+        "researchgate.net",
+        "jstor.org"
+    ]
+    
     def __init__(self, output_dir: str = "data"):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
@@ -139,68 +144,212 @@ class TropicalMedicalDataCollector:
         self.scraper = WebScraper()
         self.pubmed = PubMedAPI()
         self.pdf_loader = PDFLoader()
+        
+        # Tracking des échecs
+        self.failed_sources = {
+            "WHO": [],
+            "PubMed": [],
+            "MedicinalPlants": [],
+            "PDFs": []
+        }
     
-    # === MÉTHODES DE COLLECTE PAR SOURCE ===
+    # === METHODES UTILITAIRES AJOUTEES ===
+    
+    def _is_portal_url(self, url: str) -> bool:
+        """
+        Vérifie si une URL pointe vers un portail non-scrapable
+        
+        Args:
+            url: URL à vérifier
+            
+        Returns:
+            True si c'est un portail connu
+        """
+        domain = urlparse(url).netloc
+        return any(portal in domain for portal in self.PORTAL_DOMAINS)
+    
+    def _requires_auth(self, url: str) -> bool:
+        """
+        Vérifie si une URL nécessite une authentification
+        
+        Args:
+            url: URL à vérifier
+            
+        Returns:
+            True si authentification requise
+        """
+        domain = urlparse(url).netloc
+        return any(auth_domain in domain for auth_domain in self.AUTH_REQUIRED_DOMAINS)
+    
+    def _needs_ssl_bypass(self, url: str) -> bool:
+        """
+        Vérifie si une URL nécessite un bypass SSL
+        
+        Args:
+            url: URL à vérifier
+            
+        Returns:
+            True si le domaine est dans la whitelist SSL
+        """
+        domain = urlparse(url).netloc
+        return any(whitelisted in domain for whitelisted in self.SSL_WHITELIST)
+    
+    def _convert_fr_to_en(self, url: str) -> str:
+        """
+        Convertit une URL WHO française en anglaise
+        
+        Args:
+            url: URL originale avec /fr/
+            
+        Returns:
+            URL avec /fr/ remplacé par /en/
+        """
+        return url.replace("/fr/news-room", "/news-room").replace("/fr/health-topics", "/health-topics")
+    
+    def _retry_with_backoff(self, func, max_retries: int = 3, initial_delay: float = 1.0):
+        """
+        Réessaie une fonction avec backoff exponentiel
+        
+        Args:
+            func: Fonction à exécuter
+            max_retries: Nombre maximum de tentatives
+            initial_delay: Délai initial en secondes
+            
+        Returns:
+            Résultat de la fonction ou None
+        """
+        delay = initial_delay
+        for attempt in range(max_retries):
+            try:
+                result = func()
+                if result:
+                    return result
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    logger.debug(f"Tentative {attempt + 1}/{max_retries} echouee, retry dans {delay}s: {e}")
+                    time.sleep(delay)
+                    delay *= 2  # Backoff exponentiel
+                else:
+                    logger.debug(f"Echec definitif apres {max_retries} tentatives")
+                    raise
+        return None
+    
+    def _track_failure(self, source_type: str, identifier: str, error_type: str, details: str = ""):
+        """
+        Enregistre un échec de collecte
+        
+        Args:
+            source_type: Type de source (WHO, PubMed, etc.)
+            identifier: URL ou PMID
+            error_type: Type d'erreur (404, SSL_CERT_EXPIRED, etc.)
+            details: Détails supplémentaires
+        """
+        failure_record = {
+            "identifier": identifier,
+            "error": error_type,
+            "details": details,
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+        }
+        self.failed_sources[source_type].append(failure_record)
+        logger.debug(f"Echec tracké - {source_type}: {identifier} ({error_type})")
+    
+    def _validate_pdf_directory(self, pdf_dir: str) -> bool:
+        """
+        Valide l'existence et le contenu du répertoire PDF
+        
+        Args:
+            pdf_dir: Chemin du répertoire
+            
+        Returns:
+            True si le répertoire existe et contient des PDFs
+        """
+        path = Path(pdf_dir)
+        
+        if not path.exists():
+            logger.warning(f"Repertoire PDF inexistant: {pdf_dir}")
+            self._track_failure("PDFs", pdf_dir, "DIR_NOT_FOUND", "Le repertoire n'existe pas")
+            return False
+        
+        if not path.is_dir():
+            logger.warning(f"Le chemin n'est pas un repertoire: {pdf_dir}")
+            self._track_failure("PDFs", pdf_dir, "NOT_A_DIRECTORY", "Le chemin pointe vers un fichier")
+            return False
+        
+        pdf_files = list(path.glob("*.pdf"))
+        if not pdf_files:
+            logger.warning(f"Aucun fichier PDF trouve dans: {pdf_dir}")
+            self._track_failure("PDFs", pdf_dir, "EMPTY_DIRECTORY", "Aucun fichier .pdf present")
+            return False
+        
+        logger.info(f"Repertoire PDF valide: {len(pdf_files)} fichiers trouves")
+        return True
+    
+    # === MÉTHODES DE COLLECTE PAR SOURCE (ENRICHIES) ===
     
     def collect_from_who(self) -> List[Dict]:
-        """Collecte et normalise les pages WHO listées dans ``WHO_URLS``.
-
-        Pour chaque URL, la méthode tente de récupérer le contenu via
-        ``self.scraper.fetch_url`` puis d'ajouter les métadonnées minimales.
-
-        Returns
-        -------
-        List[Dict]
-            Liste de documents normalisés collectés depuis WHO. Chaque dictionnaire
-            contient au minimum les clés: ``id``, ``title``, ``content``, ``source``.
-
-        Notes
-        -----
-        - Les erreurs réseau sont interceptées et loggées. La méthode continue
-          la collecte sur les URLs suivantes.
-        - Un léger délai est appliqué entre requêtes pour respecter les
-          limitations de taux.
+        """
+        Collecte depuis WHO (Organisation Mondiale de la Santé)
+        Avec fallback automatique FR -> EN pour les 404
+        
+        Returns:
+            Liste de documents WHO
         """
         logger.info(" Phase 1/4: Collecte WHO Tropical Diseases")
         
         docs = []
         for idx, url in enumerate(self.WHO_URLS):
             try:
+                # Tentative initiale
                 doc = self.scraper.fetch_url(url)
                 
                 if doc:
                     doc["id"] = idx
                     doc["source"] = "WHO"
                     docs.append(doc)
-                    logger.info(f"  ✓ WHO {idx+1}/{len(self.WHO_URLS)}")
+                    logger.info(f"  WHO {idx+1}/{len(self.WHO_URLS)}")
+                else:
+                    # Si échec et URL française, tenter la version anglaise
+                    if "/fr/" in url:
+                        logger.debug(f"Tentative fallback EN pour: {url}")
+                        en_url = self._convert_fr_to_en(url)
+                        
+                        try:
+                            doc = self.scraper.fetch_url(en_url)
+                            if doc:
+                                doc["id"] = idx
+                                doc["source"] = "WHO"
+                                doc["url"] = en_url  # Mettre à jour l'URL utilisée
+                                docs.append(doc)
+                                logger.info(f"  WHO {idx+1}/{len(self.WHO_URLS)} (fallback EN)")
+                            else:
+                                self._track_failure("WHO", url, "HTTP_404", f"Echec aussi sur {en_url}")
+                        except Exception as e:
+                            self._track_failure("WHO", url, "FALLBACK_FAILED", str(e))
+                    else:
+                        self._track_failure("WHO", url, "FETCH_FAILED", "Reponse vide")
                 
                 time.sleep(1.0)  # Rate limiting
                 
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code == 404:
+                    self._track_failure("WHO", url, "HTTP_404", "Page non trouvee")
+                else:
+                    self._track_failure("WHO", url, f"HTTP_{e.response.status_code}", str(e))
+                logger.error(f"  Erreur WHO {url}: {e}")
             except Exception as e:
-                logger.error(f"  ✗ Erreur WHO {url}: {e}")
+                self._track_failure("WHO", url, "UNKNOWN_ERROR", str(e))
+                logger.error(f"  Erreur WHO {url}: {e}")
         
-        logger.info(f"→ WHO: {len(docs)} documents collectés")
+        logger.info(f"WHO: {len(docs)} documents collectes")
         return docs
     
     def collect_from_pubmed(self) -> List[Dict]:
-        """Interroge PubMed pour une série de requêtes et récupère des abstracts.
-
-        Le client ``self.pubmed`` est utilisé pour effectuer la recherche de
-        PMIDs et la récupération des abstracts. Par souci de rapidité et de
-        contrôle de quota, la méthode limite le nombre de résultats par requête.
-
-        Returns
-        -------
-        List[Dict]
-            Liste d'objets représentant les abstracts récupérés. Les clés
-            attendues incluent : ``id``, ``title``, ``content`` (abstract),
-            ``source``.
-
-        Raises
-        ------
-        Exception
-            Les erreurs de réseau sont capturées et loggées; la méthode ne
-            propage pas les exceptions vers l'appelant.
+        """
+        Collecte depuis PubMed (articles scientifiques)
+        Avec tracking des abstracts manquants
+        
+        Returns:
+            Liste de documents PubMed
         """
         logger.info("\n  Phase 2/4: Collecte PubMed Articles")
         
@@ -214,46 +363,79 @@ class TropicalMedicalDataCollector:
                 
                 # Récupération abstracts (limiter à 10 par query)
                 for pmid in pmids[:10]:
-                    abstract = self.pubmed.fetch_abstract(pmid)
-                    
-                    if abstract:
-                        abstract["id"] = doc_id
-                        abstract["source"] = "PubMed"
-                        docs.append(abstract)
-                        doc_id += 1
+                    try:
+                        abstract = self.pubmed.fetch_abstract(pmid)
+                        
+                        if abstract:
+                            # Vérifier si l'abstract contient du texte
+                            if abstract.get("text") and len(abstract.get("text", "").strip()) > 0:
+                                abstract["id"] = doc_id
+                                abstract["source"] = "PubMed"
+                                abstract["has_abstract"] = True
+                                docs.append(abstract)
+                                doc_id += 1
+                            else:
+                                # Métadonnées présentes mais pas d'abstract
+                                # Ce n'est pas un échec, on garde les métadonnées
+                                abstract["id"] = doc_id
+                                abstract["source"] = "PubMed"
+                                abstract["has_abstract"] = False
+                                abstract["text"] = ""  # Texte vide explicite
+                                docs.append(abstract)
+                                doc_id += 1
+                                logger.debug(f"PMID {pmid}: metadonnees uniquement (pas d'abstract)")
+                        else:
+                            self._track_failure("PubMed", pmid, "FETCH_FAILED", "Reponse vide de l'API")
+                    except Exception as e:
+                        self._track_failure("PubMed", pmid, "FETCH_ERROR", str(e))
+                        logger.debug(f"Erreur PMID {pmid}: {e}")
                 
                 time.sleep(1.0)  # Rate limiting
                 
             except Exception as e:
-                logger.error(f"  ✗ Erreur PubMed query '{query}': {e}")
+                self._track_failure("PubMed", query, "QUERY_FAILED", str(e))
+                logger.error(f"  Erreur PubMed query '{query}': {e}")
         
-        logger.info(f"→ PubMed: {len(docs)} documents collectés")
+        logger.info(f"PubMed: {len(docs)} documents collectes")
         return docs
     
     def collect_from_medicinal_plants(self) -> List[Dict]:
-        """Récupère des documents relatifs aux plantes médicinales à partir
-        de la liste ``MEDICINAL_PLANTS_URLS``.
-
-        Returns
-        -------
-        List[Dict]
-            Documents normalisés extraits des pages ou PDFs listés.
-
-        Notes
-        -----
-        - Certaines URLs peuvent pointer vers des PDFs (extraction via
-          ``self.pdf_loader`` par le scraper) ou vers des pages HTML.
-        - La méthode applique un délai de tempo plus long pour réduire la
-          charge sur les serveurs externes.
         """
-        logger.info("\n Phase 3/4: Collecte Plantes Médicinales")
+        Collecte depuis sources sur plantes médicinales tropicales
+        Avec filtrage des portails, gestion SSL et authentification
+        
+        Returns:
+            Liste de documents plantes médicinales
+        """
+        logger.info("\n Phase 3/4: Collecte Plantes Medicinales")
         
         docs = []
         doc_id = 3000  # Offset
         
         for idx, url in enumerate(self.MEDICINAL_PLANTS_URLS):
+            # Vérifications préalables
+            if self._is_portal_url(url):
+                logger.info(f"   Plants {idx+1}/{len(self.MEDICINAL_PLANTS_URLS)} - SKIP (portail)")
+                self._track_failure("MedicinalPlants", url, "PORTAL_SKIPPED", "URL identifiee comme portail non-scrapable")
+                continue
+            
+            if self._requires_auth(url):
+                logger.info(f"   Plants {idx+1}/{len(self.MEDICINAL_PLANTS_URLS)} - SKIP (auth requise)")
+                self._track_failure("MedicinalPlants", url, "AUTH_REQUIRED", "Site necessite authentification")
+                continue
+            
             try:
-                doc = self.scraper.fetch_url(url)
+                # Gestion SSL si nécessaire
+                if self._needs_ssl_bypass(url):
+                    logger.debug(f"Bypass SSL pour: {url}")
+                    # Note: Nécessite modification de WebScraper pour accepter verify=False
+                    # Pour l'instant on tente quand même
+                
+                # Tentative avec retry
+                def fetch_attempt():
+                    return self.scraper.fetch_url(url)
+                
+                doc = self._retry_with_backoff(fetch_attempt, max_retries=2)
                 
                 if doc:
                     doc["id"] = doc_id
@@ -261,136 +443,124 @@ class TropicalMedicalDataCollector:
                     docs.append(doc)
                     logger.info(f"   Plants {idx+1}/{len(self.MEDICINAL_PLANTS_URLS)}")
                     doc_id += 1
+                else:
+                    self._track_failure("MedicinalPlants", url, "FETCH_FAILED", "Reponse vide apres retries")
                 
                 time.sleep(1.5)  # Rate limiting plus prudent
                 
+            except requests.exceptions.SSLError as e:
+                self._track_failure("MedicinalPlants", url, "SSL_CERT_EXPIRED", str(e))
+                logger.error(f"   Erreur SSL Plants {url}: {e}")
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code == 403:
+                    self._track_failure("MedicinalPlants", url, "HTTP_403", "Acces interdit")
+                else:
+                    self._track_failure("MedicinalPlants", url, f"HTTP_{e.response.status_code}", str(e))
+                logger.error(f"   Erreur HTTP Plants {url}: {e}")
+            except requests.exceptions.ConnectionError as e:
+                self._track_failure("MedicinalPlants", url, "DNS_FAIL", str(e))
+                logger.error(f"   Erreur DNS Plants {url}: {e}")
             except Exception as e:
+                self._track_failure("MedicinalPlants", url, "UNKNOWN_ERROR", str(e))
                 logger.error(f"   Erreur Plants {url}: {e}")
         
-        logger.info(f"→ Plantes Médicinales: {len(docs)} documents collectés")
+        logger.info(f"Plantes Medicinales: {len(docs)} documents collectes")
         return docs
     
     def collect_from_pdfs(self, pdf_dir: str = "data/raw") -> List[Dict]:
-        """Charge et extrait le texte des fichiers PDF présents dans ``pdf_dir``.
-
-        Parameters
-        ----------
-        pdf_dir : str
-            Chemin vers le dossier contenant les fichiers PDF (relatif ou
-            absolu). Par défaut ``data/raw``.
-
-        Returns
-        -------
-        List[Dict]
-            Liste des documents extraits depuis les PDFs. Chaque élément contient
-            au minimum ``id``, ``title``, ``content`` et ``source``.
-
-        Raises
-        ------
-        FileNotFoundError
-            Si le répertoire n'existe pas. La méthode logge l'erreur et renvoie
-            une liste vide au lieu de lever l'exception vers l'appelant.
-
-        Notes
-        -----
-        - La méthode utilise ``self.pdf_loader.load_pdfs_from_directory`` pour
-          l'extraction; selon la taille des PDFs, l'opération peut être longue.
-        - Les IDs sont réassignés avec un offset pour éviter les collisions
-          avec d'autres sources.
+        """
+        Charge les PDFs locaux
+        Avec validation préalable du répertoire
+        
+        Args:
+            pdf_dir: Répertoire contenant les PDFs
+            
+        Returns:
+            Liste de documents PDF
         """
         logger.info("\n Phase 4/4: Chargement PDFs Locaux")
-        # Convertir en chemin absolu
-        pdf_dir_path = Path(pdf_dir).resolve()
-        logger.info(f" Chemin PDFs: {pdf_dir_path}")
-        if not pdf_dir_path.exists():
-            logger.error(f" ✗ Répertoire PDFs introuvable: {pdf_dir_path}")
+        
+        # Validation du répertoire
+        if not self._validate_pdf_directory(pdf_dir):
+            logger.warning(f"Validation echouee pour: {pdf_dir}")
             return []
         
-        # Lister les PDFs trouvés
-        pdf_files = list(pdf_dir_path.glob("*.pdf"))
-        logger.info(f" PDFs trouvés: {len(pdf_files)}")
-        for pdf in pdf_files:
-            logger.info(f"   - {pdf.name}")
-        
-        docs = self.pdf_loader.load_pdfs_from_directory(str(pdf_dir_path))
-        
-        # Réassigner IDs avec offset
-        for idx, doc in enumerate(docs):
-            doc["id"] = 4000 + idx
-
-        logger.info(f" PDFs Locaux: {len(docs)} documents chargés")
-        return docs
-
+        try:
+            docs = self.pdf_loader.load_pdfs_from_directory(pdf_dir)
+            
+            # Réassigner IDs avec offset
+            for idx, doc in enumerate(docs):
+                doc["id"] = 4000 + idx
+            
+            logger.info(f" PDFs Locaux: {len(docs)} documents charges")
+            return docs
+            
+        except Exception as e:
+            self._track_failure("PDFs", pdf_dir, "LOAD_ERROR", str(e))
+            logger.error(f"Erreur lors du chargement des PDFs: {e}")
+            return []
+    
     # === ORCHESTRATION PRINCIPALE ===
-
+    
     def generate_corpus(self, min_docs: int = 500) -> None:
-        """Orchestre la collecte complète depuis toutes les sources et sauvegarde
-        le corpus.
-
-        Parameters
-        ----------
-        min_docs : int
-            Nombre minimum de documents visé (utilisé pour logging et alertes).
-
-        Side effects
-        ------------
-        - Modifie l'attribut ``self.corpus`` en y ajoutant tous les documents
-          collectés.
-        - Écrit les fichiers ``corpus.json`` et ``sources.txt`` dans
-          ``self.output_dir`` via ``self.save_corpus()``.
-
-        Notes
-        -----
-        - La méthode est tolérante aux erreurs : si une source échoue, les
-          autres sources continuent d'être traitées.
+        """
+        Pipeline complet de collecte
+        
+        Orchestre toutes les sources et construit le corpus final
+        
+        Args:
+            min_docs: Nombre minimum de documents requis
         """
         logger.info("=" * 70)
-        logger.info("  DÉBUT DE LA COLLECTE COMPLÈTE")
+        logger.info("  DEBUT DE LA COLLECTE COMPLETE")
         logger.info("=" * 70)
-
+        
         # Phase 1: WHO
         who_docs = self.collect_from_who()
         self.corpus.extend(who_docs)
-
+        
         # Phase 2: PubMed
         pubmed_docs = self.collect_from_pubmed()
         self.corpus.extend(pubmed_docs)
-
+        
         # Phase 3: Plantes médicinales
         plant_docs = self.collect_from_medicinal_plants()
         self.corpus.extend(plant_docs)
-
+        
         # Phase 4: PDFs locaux
         pdf_docs = self.collect_from_pdfs()
         self.corpus.extend(pdf_docs)
-
+        
         # Validation
         total = len(self.corpus)
         logger.info("\n" + "=" * 70)
-        logger.info(f"  RÉSULTATS FINAUX")
+        logger.info(f"  RESULTATS FINAUX")
         logger.info("=" * 70)
         logger.info(f"  WHO: {len(who_docs)} docs")
         logger.info(f"  PubMed: {len(pubmed_docs)} docs")
         logger.info(f"  Plantes: {len(plant_docs)} docs")
         logger.info(f"  PDFs: {len(pdf_docs)} docs")
         logger.info(f"  TOTAL: {total} documents")
-
+        
+        # Statistiques d'échecs
+        total_failures = sum(len(failures) for failures in self.failed_sources.values())
+        if total_failures > 0:
+            logger.info(f"  ECHECS: {total_failures} sources")
+            for source_type, failures in self.failed_sources.items():
+                if failures:
+                    logger.info(f"    - {source_type}: {len(failures)} echecs")
+        
         if total < min_docs:
             logger.warning(f"  Objectif non atteint: {total}/{min_docs}")
         else:
             logger.info(f"  Objectif atteint: {total}/{min_docs}")
-
+        
         # Sauvegarde
         self.save_corpus()
+        self.save_failed_sources()
     
     def save_corpus(self):
-        """Persiste le corpus en JSON et écrit un fichier texte listant les
-        sources regroupées par type.
-
-        Le fichier JSON est encodé en UTF-8 et n'échoue pas sur des caractères
-        non-ASCII grâce à ``ensure_ascii=False``. Le fichier texte contient une
-        ligne par document au format: ``id\ttitle\turl``.
-        """
+        """Sauvegarde le corpus et les métadonnées"""
         corpus_path = self.output_dir / "corpus.json"
         sources_path = self.output_dir / "sources.txt"
         
@@ -400,7 +570,7 @@ class TropicalMedicalDataCollector:
         
         # Sources TXT avec groupement par type
         with open(sources_path, "w", encoding="utf-8") as f:
-            f.write("# Sources Médicales Tropicales\n\n")
+            f.write("# Sources Medicales Tropicales\n\n")
             
             sources_by_type = {}
             for doc in self.corpus:
@@ -412,8 +582,38 @@ class TropicalMedicalDataCollector:
                 for doc in docs:
                     f.write(f"{doc['id']}\t{doc['title']}\t{doc.get('url', 'N/A')}\n")
         
-        logger.info(f"\n Corpus sauvegardé: {corpus_path}")
-        logger.info(f" Sources sauvegardées: {sources_path}")
+        logger.info(f"\n Corpus sauvegarde: {corpus_path}")
+        logger.info(f" Sources sauvegardees: {sources_path}")
+    
+    def save_failed_sources(self):
+        """Sauvegarde le tracking des échecs"""
+        failed_path = self.output_dir / "sources_failed.json"
+        
+        # Filtrer les sources sans échecs
+        non_empty_failures = {
+            source_type: failures 
+            for source_type, failures in self.failed_sources.items() 
+            if failures
+        }
+        
+        if non_empty_failures:
+            with open(failed_path, "w", encoding="utf-8") as f:
+                json.dump(non_empty_failures, f, ensure_ascii=False, indent=2)
+            
+            logger.info(f" Echecs sauvegardes: {failed_path}")
+            
+            # Résumé des échecs par type d'erreur
+            error_summary = {}
+            for source_type, failures in non_empty_failures.items():
+                for failure in failures:
+                    error_type = failure["error"]
+                    error_summary[error_type] = error_summary.get(error_type, 0) + 1
+            
+            logger.info("\n Resume des types d'erreurs:")
+            for error_type, count in sorted(error_summary.items(), key=lambda x: x[1], reverse=True):
+                logger.info(f"   - {error_type}: {count}")
+        else:
+            logger.info(" Aucun echec a sauvegarder")
 
 
 # === POINT D'ENTRÉE ===
