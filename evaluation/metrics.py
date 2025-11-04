@@ -174,7 +174,7 @@ class RAGMetrics:
             return 0.0
         
         # Concaténation des textes
-        all_text = " ".join([doc.get("text", "") for doc in retrieved_docs]).lower()
+        all_text = self._normalize(" ".join([doc.get("text", "") for doc in retrieved_docs]))
 
         keys = [self._normalize(kw) for kw in expected_keywords]
 
@@ -196,7 +196,7 @@ class RAGMetrics:
         if not answer or not expected_keywords:
             return 0.0
             
-        answer_lower = answer.lower()
+        answer_lower = self._normalize(answer)
         
         answers = [self._normalize(kw) for kw in expected_keywords]
         
