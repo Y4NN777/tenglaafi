@@ -72,11 +72,12 @@ from sentence_transformers import SentenceTransformer
 from typing import List, Union
 import numpy as np
 import logging
+import logging.config
 from src.core.config import EMBEDDING_MODEL, LOGGING_CONFIG
 
-logging.basicConfig(**LOGGING_CONFIG)
+# Configure logging
+logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
-
 
 class EmbeddingManager:
     """
