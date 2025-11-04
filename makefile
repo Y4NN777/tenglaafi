@@ -171,20 +171,18 @@ collect: ## Collecte les données (≥500 docs) via vos scripts
 
 validate-corpus: ## Valide le corpus (>= 500 docs)
 	@$(ECHO) "$(GREEN)Validation du corpus...$(NC)"
-	@$(PYTHON) - <<'PY'
-	import json, sys
-	p = '$(DATA_DIR)/corpus.json'
-	try:
-		with open(p, 'r', encoding='utf-8') as f:
-			corpus = json.load(f)
-	except Exception as e:
-		print("Erreur: impossible de lire", p, ":", e)
-		sys.exit(1)
-	n = len(corpus)
-	print(f"{n} documents dans le corpus")
-	assert n >= 500, f"Insuffisant: {n}/500 documents"
-	print("Corpus valide")
-	PY
+	@$(PYTHON) -c "\
+import json, sys, os; \
+p = os.path.join('$(DATA_DIR)', 'corpus.json'); \
+print('Validation du corpus depuis', p); \
+corpus = json.load(open(p, 'r', encoding='utf-8')); \
+n = len(corpus); \
+print(f'{n} documents dans le corpus'); \
+assert n >= 500, f'Corpus incomplet: {n}/500 documents'; \
+print('Corpus valide')"
+
+
+
 
 stats-corpus: ## Affiche des statistiques simples sur le corpus
 	@$(ECHO) "$(GREEN)Statistiques du corpus:$(NC)"
@@ -202,7 +200,7 @@ stats-corpus: ## Affiche des statistiques simples sur le corpus
 
 index: validate-corpus ## Indexe le corpus dans ChromaDB
 	@$(ECHO) "$(GREEN)Indexation du corpus...$(NC)"
-	$(PYTHON) store_index.py
+	$(PYTHON) -m $(SRC_DIR).scripts.store_index
 	@$(ECHO) "$(GREEN)Indexation terminée.$(NC)"
 
 reindex: ## Réindexation complète (supprime l'index actuel)
