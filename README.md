@@ -117,11 +117,11 @@ llm = HuggingFaceEndpoint(
 
 | Source | Nombre | Type | Description |
 |--------|--------|------|-------------|
-| **WHO** | 50-70 | Web scraping | Factsheets maladies tropicales |
-| **PubMed** | 150-200 | API publique | Articles scientifiques peer-reviewed |
-| **PDFs Locaux** | 250-300 | Documents | Guides médicaux, thèses, rapports |
-| **Plantes Médicinales** | ~100 | Multi-sources | Base de données ethnobotaniques |
-| **TOTAL** | **500+** | | **Corpus validé** |
+| **WHO** | 23 | Web scraping | Factsheets maladies tropicales |
+| **PubMed** | 254 | API publique | Articles scientifiques peer-reviewed |
+| **PDFs Locaux** | 1243 | Documents | Guides médicaux, thèses, rapports |
+| **Plantes Médicinales** | 11| Multi-sources | Base de données ethnobotaniques |
+| **TOTAL** | **500+**(1531) | | **Corpus validé** |
 
 **Sources de données maladies tropicales (WHO + PubMed):**
 - Maladies majeures (malaria, dengue, fièvre jaune)
