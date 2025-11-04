@@ -1,3 +1,16 @@
+"""tropical_medical_data_collector
+
+Module de collecte de documents médicaux tropicaux.
+
+Ce module fournit la classe `TropicalMedicalDataCollector` qui orchestre la
+collecte de documents depuis plusieurs sources (WHO, PubMed, bases de plantes
+médicinales et PDFs locaux), normalise les documents en un format commun et
+produit des artefacts persistants (`data/corpus.json`, `data/sources.txt`).
+
+Docstrings détaillées sont fournies pour la classe et les méthodes publiques
+afin de faciliter la contribution et les tests.
+"""
+
 import json
 from pathlib import Path
 from typing import List, Dict
@@ -15,14 +28,42 @@ logger = logging.getLogger(__name__)
 
 
 class TropicalMedicalDataCollector:
-    """
-    Orchestrateur de collecte de données médicales tropicales
-    
-    Responsabilités:
-    - Définir les sources médicales pertinentes
-    - Orchestrer la collecte depuis WHO, PubMed, Plants, PDFs
-    - Construire un corpus unifié de 500+ documents
-    - Sauvegarder le corpus et les métadonnées
+    """Orchestrateur de collecte de documents médicaux tropicaux.
+
+    Cette classe regroupe et normalise des documents provenant de plusieurs
+    sources hétérogènes pour constituer un corpus exploitable par le pipeline
+    RAG.
+
+    Contract:
+    - Input: paramètres de configuration (répertoires de sortie, URLs, etc.)
+    - Output: fichiers persistés (``data/corpus.json``, ``data/sources.txt``)
+
+    Attributs importants
+    ---------------------
+    output_dir : Path
+        Répertoire où seront écrits les fichiers de sortie.
+    corpus : list
+        Liste accumulée des documents collectés (chaque document est un dict
+        normalisé avec au minimum les clés: ``id``, ``title``, ``content``,
+        ``source``).
+    scraper : WebScraper
+        Utilitaire pour télécharger et parser des pages web (WHO, plantes,...)
+    pubmed : PubMedAPI
+        Client pour interroger l'API PubMed.
+    pdf_loader : PDFLoader
+        Utilitaire pour extraire du texte depuis des fichiers PDF.
+
+    Exceptions et erreurs
+    ---------------------
+    Les erreurs réseau et d'extraction sont loggées mais n'interrompent pas
+    l'exécution globale : la collecte est tolérante et renvoie un corpus
+    partiel en cas d'échecs ponctuels.
+
+    Exemple
+    -------
+    >>> from src.data_collection.tropical_medical_data_collector import TropicalMedicalDataCollector
+    >>> c = TropicalMedicalDataCollector(output_dir="data")
+    >>> c.generate_corpus(min_docs=500)
     """
     
     # === CONFIGURATION DES SOURCES ===
@@ -102,11 +143,23 @@ class TropicalMedicalDataCollector:
     # === MÉTHODES DE COLLECTE PAR SOURCE ===
     
     def collect_from_who(self) -> List[Dict]:
-        """
-        Collecte depuis WHO (Organisation Mondiale de la Santé)
-        
-        Returns:
-            Liste de documents WHO
+        """Collecte et normalise les pages WHO listées dans ``WHO_URLS``.
+
+        Pour chaque URL, la méthode tente de récupérer le contenu via
+        ``self.scraper.fetch_url`` puis d'ajouter les métadonnées minimales.
+
+        Returns
+        -------
+        List[Dict]
+            Liste de documents normalisés collectés depuis WHO. Chaque dictionnaire
+            contient au minimum les clés: ``id``, ``title``, ``content``, ``source``.
+
+        Notes
+        -----
+        - Les erreurs réseau sont interceptées et loggées. La méthode continue
+          la collecte sur les URLs suivantes.
+        - Un léger délai est appliqué entre requêtes pour respecter les
+          limitations de taux.
         """
         logger.info(" Phase 1/4: Collecte WHO Tropical Diseases")
         
@@ -130,11 +183,24 @@ class TropicalMedicalDataCollector:
         return docs
     
     def collect_from_pubmed(self) -> List[Dict]:
-        """
-        Collecte depuis PubMed (articles scientifiques)
-        
-        Returns:
-            Liste de documents PubMed
+        """Interroge PubMed pour une série de requêtes et récupère des abstracts.
+
+        Le client ``self.pubmed`` est utilisé pour effectuer la recherche de
+        PMIDs et la récupération des abstracts. Par souci de rapidité et de
+        contrôle de quota, la méthode limite le nombre de résultats par requête.
+
+        Returns
+        -------
+        List[Dict]
+            Liste d'objets représentant les abstracts récupérés. Les clés
+            attendues incluent : ``id``, ``title``, ``content`` (abstract),
+            ``source``.
+
+        Raises
+        ------
+        Exception
+            Les erreurs de réseau sont capturées et loggées; la méthode ne
+            propage pas les exceptions vers l'appelant.
         """
         logger.info("\n  Phase 2/4: Collecte PubMed Articles")
         
@@ -165,11 +231,20 @@ class TropicalMedicalDataCollector:
         return docs
     
     def collect_from_medicinal_plants(self) -> List[Dict]:
-        """
-        Collecte depuis sources sur plantes médicinales tropicales
-        
-        Returns:
-            Liste de documents plantes médicinales
+        """Récupère des documents relatifs aux plantes médicinales à partir
+        de la liste ``MEDICINAL_PLANTS_URLS``.
+
+        Returns
+        -------
+        List[Dict]
+            Documents normalisés extraits des pages ou PDFs listés.
+
+        Notes
+        -----
+        - Certaines URLs peuvent pointer vers des PDFs (extraction via
+          ``self.pdf_loader`` par le scraper) ou vers des pages HTML.
+        - La méthode applique un délai de tempo plus long pour réduire la
+          charge sur les serveurs externes.
         """
         logger.info("\n Phase 3/4: Collecte Plantes Médicinales")
         
@@ -196,57 +271,99 @@ class TropicalMedicalDataCollector:
         return docs
     
     def collect_from_pdfs(self, pdf_dir: str = "data/raw") -> List[Dict]:
-        """
-        Charge les PDFs locaux
-        
-        Args:
-            pdf_dir: Répertoire contenant les PDFs
-            
-        Returns:
-            Liste de documents PDF
+        """Charge et extrait le texte des fichiers PDF présents dans ``pdf_dir``.
+
+        Parameters
+        ----------
+        pdf_dir : str
+            Chemin vers le dossier contenant les fichiers PDF (relatif ou
+            absolu). Par défaut ``data/raw``.
+
+        Returns
+        -------
+        List[Dict]
+            Liste des documents extraits depuis les PDFs. Chaque élément contient
+            au minimum ``id``, ``title``, ``content`` et ``source``.
+
+        Raises
+        ------
+        FileNotFoundError
+            Si le répertoire n'existe pas. La méthode logge l'erreur et renvoie
+            une liste vide au lieu de lever l'exception vers l'appelant.
+
+        Notes
+        -----
+        - La méthode utilise ``self.pdf_loader.load_pdfs_from_directory`` pour
+          l'extraction; selon la taille des PDFs, l'opération peut être longue.
+        - Les IDs sont réassignés avec un offset pour éviter les collisions
+          avec d'autres sources.
         """
         logger.info("\n Phase 4/4: Chargement PDFs Locaux")
+        # Convertir en chemin absolu
+        pdf_dir_path = Path(pdf_dir).resolve()
+        logger.info(f" Chemin PDFs: {pdf_dir_path}")
+        if not pdf_dir_path.exists():
+            logger.error(f" ✗ Répertoire PDFs introuvable: {pdf_dir_path}")
+            return []
         
-        docs = self.pdf_loader.load_pdfs_from_directory(pdf_dir)
+        # Lister les PDFs trouvés
+        pdf_files = list(pdf_dir_path.glob("*.pdf"))
+        logger.info(f" PDFs trouvés: {len(pdf_files)}")
+        for pdf in pdf_files:
+            logger.info(f"   - {pdf.name}")
+        
+        docs = self.pdf_loader.load_pdfs_from_directory(str(pdf_dir_path))
         
         # Réassigner IDs avec offset
         for idx, doc in enumerate(docs):
             doc["id"] = 4000 + idx
-        
+
         logger.info(f" PDFs Locaux: {len(docs)} documents chargés")
         return docs
-    
+
     # === ORCHESTRATION PRINCIPALE ===
-    
+
     def generate_corpus(self, min_docs: int = 500) -> None:
-        """
-        Pipeline complet de collecte
-        
-        Orchestre toutes les sources et construit le corpus final
-        
-        Args:
-            min_docs: Nombre minimum de documents requis
+        """Orchestre la collecte complète depuis toutes les sources et sauvegarde
+        le corpus.
+
+        Parameters
+        ----------
+        min_docs : int
+            Nombre minimum de documents visé (utilisé pour logging et alertes).
+
+        Side effects
+        ------------
+        - Modifie l'attribut ``self.corpus`` en y ajoutant tous les documents
+          collectés.
+        - Écrit les fichiers ``corpus.json`` et ``sources.txt`` dans
+          ``self.output_dir`` via ``self.save_corpus()``.
+
+        Notes
+        -----
+        - La méthode est tolérante aux erreurs : si une source échoue, les
+          autres sources continuent d'être traitées.
         """
         logger.info("=" * 70)
         logger.info("  DÉBUT DE LA COLLECTE COMPLÈTE")
         logger.info("=" * 70)
-        
+
         # Phase 1: WHO
         who_docs = self.collect_from_who()
         self.corpus.extend(who_docs)
-        
+
         # Phase 2: PubMed
         pubmed_docs = self.collect_from_pubmed()
         self.corpus.extend(pubmed_docs)
-        
+
         # Phase 3: Plantes médicinales
         plant_docs = self.collect_from_medicinal_plants()
         self.corpus.extend(plant_docs)
-        
+
         # Phase 4: PDFs locaux
         pdf_docs = self.collect_from_pdfs()
         self.corpus.extend(pdf_docs)
-        
+
         # Validation
         total = len(self.corpus)
         logger.info("\n" + "=" * 70)
@@ -257,17 +374,23 @@ class TropicalMedicalDataCollector:
         logger.info(f"  Plantes: {len(plant_docs)} docs")
         logger.info(f"  PDFs: {len(pdf_docs)} docs")
         logger.info(f"  TOTAL: {total} documents")
-        
+
         if total < min_docs:
             logger.warning(f"  Objectif non atteint: {total}/{min_docs}")
         else:
             logger.info(f"  Objectif atteint: {total}/{min_docs}")
-        
+
         # Sauvegarde
         self.save_corpus()
     
     def save_corpus(self):
-        """Sauvegarde le corpus et les métadonnées"""
+        """Persiste le corpus en JSON et écrit un fichier texte listant les
+        sources regroupées par type.
+
+        Le fichier JSON est encodé en UTF-8 et n'échoue pas sur des caractères
+        non-ASCII grâce à ``ensure_ascii=False``. Le fichier texte contient une
+        ligne par document au format: ``id\ttitle\turl``.
+        """
         corpus_path = self.output_dir / "corpus.json"
         sources_path = self.output_dir / "sources.txt"
         
