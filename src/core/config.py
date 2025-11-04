@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 from dotenv import load_dotenv
 import os
 
@@ -17,7 +17,7 @@ class Settings:
 
 # Instance unique (singleton)
 settings = Settings()
-=======
+
 import os
 from pathlib import Path
 from dotenv import load_dotenv
@@ -87,4 +87,4 @@ API_RELOAD = True
 if not HF_TOKEN:
     print("  HF_TOKEN manquant dans .env")
     print("Obtenez-le gratuitement sur https://huggingface.co/settings/tokens")
->>>>>>> 4b00721084952a5710bcb1bc9ee90cd2e9ee378d
+

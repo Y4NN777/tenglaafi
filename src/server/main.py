@@ -17,7 +17,7 @@ app = FastAPI(
 # Middleware CORS (pour autoriser ton frontend à communiquer)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # ⚠️ à restreindre en production
+    allow_origins=["*"],  # à restreindre en production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -4,7 +4,7 @@ class RAGPipeline:
     """Pipeline RAG mock pour test API"""
 
     def __init__(self):
-        print("⚡ RAGPipeline initialisé (mock)")
+        print(" RAGPipeline initialisé (mock)")
 
     def query(self, question: str, top_k: int = 3) -> Dict:
         answer = f"Réponse simulée à la question : '{question}'"
