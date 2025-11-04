@@ -1,6 +1,71 @@
 """
-Client LLM open source via HuggingFace Inference API (mode chat)
+Client LLM open source (mode chat) pour le pipeline Tenglaafi.
+
+Ce module implémente la classe `MedicalLLM`, un client universel pour les modèles
+de langage hébergés sur Hugging Face Hub. Il est utilisé dans la phase de
+génération du pipeline RAG pour produire des réponses contextualisées basées
+sur des documents médicaux.
+
+Fonctionnalités principales
+---------------------------
+- Compatibilité avec l’API Hugging Face Inference (mode conversationnel).
+- Sélection automatique du modèle (`mistral`, `llama`, `meditron`).
+- Gestion sécurisée du token Hugging Face (`HF_TOKEN`).
+- Système de retry pour robustesse face aux erreurs réseau.
+- Intégration transparente dans le pipeline RAG (via `get_llm_client()`).
+
+Modèles recommandés
+-------------------
+- `mistralai/Mistral-7B-Instruct-v0.3`  → version utilisée par défaut.
+- `meta-llama/Llama-2-7b-chat-hf`       → alternative open source.
+- `epfl-llm/meditron-7b`                → modèle spécialisé dans le domaine médical.
+
+Flux d’exécution
+----------------
+1. Initialisation du client Hugging Face Inference :
+   - Chargement du modèle via `InferenceClient`.
+   - Vérification automatique du token (`HF_TOKEN` ou variable d’environnement).
+2. Construction du prompt conversationnel :
+   - `system_prompt` : définit le rôle de l’assistant.
+   - `user_prompt` : injecte le contexte et la question médicale.
+3. Appel à l’API Hugging Face :
+   - Mode récent → `client.chat_completions.create(...)`.
+   - Mode ancien → `client.chat_completion(...)` (fallback rétrocompatible).
+4. Retourne la réponse générée et nettoyée.
+
+Composants exposés
+------------------
+- `MedicalLLM` : classe principale pour les appels LLM.
+- `get_llm_client()` : singleton pour réutiliser le même client en mémoire.
+
+Paramètres de configuration
+----------------------------
+- `HF_TOKEN` : clé d’accès Hugging Face (obligatoire pour les requêtes).
+- `LLM_MODEL` : nom du modèle par défaut, issu de `src.core.config`.
+- `LOGGING_CONFIG` : dictionnaire standard pour la configuration du logging.
+
+Exemple d’utilisation
+---------------------
+    >>> from src.rag_pipeline.llm import get_llm_client
+    >>> llm = get_llm_client("mistral")
+    >>> answer = llm.generate_answer(
+    ...     context=\"Le paludisme est causé par le parasite Plasmodium.\",
+    ...     question=\"Quelle est la cause du paludisme ?\"
+    ... )
+    >>> print(answer)
+    Le paludisme est provoqué par le parasite Plasmodium transmis par les moustiques Anopheles...
+
+Bonnes pratiques
+----------------
+- Toujours définir le token Hugging Face (`export HF_TOKEN=...`).
+- Utiliser la méthode `generate_answer()` au lieu d’appeler `_chat()` directement.
+- Limiter `max_tokens` pour éviter les réponses trop longues.
+- Utiliser `temperature=0.2` pour des réponses cohérentes et stables.
+- En cas d’erreur ou de réponse trop courte, le système réessaie automatiquement (2 tentatives).
+
+Auteur : Équipe Tenglaafi – Hackathon SN 2025
 """
+    
 from typing import List, Dict, Optional
 import os
 import logging

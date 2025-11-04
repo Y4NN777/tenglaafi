@@ -64,6 +64,9 @@ Notes de Conception:
       pour faciliter les tests (mock/monkeypatch).
     - L’usage de `langchain-text-splitters` est privilégié pour assurer la compatibilité open-source.
     - Les sorties sont typées et structurées pour une intégration directe avec le pipeline RAG Tenglaafi.
+
+Auteur : Y4NN777
+
 """
 
 

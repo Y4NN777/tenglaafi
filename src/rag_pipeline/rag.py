@@ -56,6 +56,9 @@ Bonnes pratiques
   base persistée.
 - Surveiller les logs pour détecter les erreurs ChromaDB ou LLM.
 - Limiter la taille du contexte (`max_length ≈ 3000`) pour réduire la latence du LLM.
+
+Auteur : Y4NN777
+
 """
 
 import json
