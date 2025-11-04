@@ -228,6 +228,15 @@ test: ## Exécute tous les tests
 	@$(ECHO) "$(GREEN)Exécution des tests...$(NC)"
 	$(PYTEST) $(EVAL_DIR)/tests/ -v --tb=short
 
+
+individual-unit-test: ## Exécute un test individuel (usage: make individual-test TEST=path/to/test_file.py)
+	@if [ -z "$(TEST)" ]; then \
+		$(ECHO) "$(RED)Erreur: variable TEST non définie. Usage: make individual-test TEST=path/to/test_file.py$(NC)"; \
+		exit 1; \
+	fi
+	@$(ECHO) "$(GREEN)Exécution du test individuel: $(TEST)$(NC)"
+	$(PYTEST) $(TEST) -v --tb=short
+
 test-unit: ## Tests unitaires uniquement
 	@$(ECHO) "$(GREEN)Tests unitaires...$(NC)"
 	$(PYTEST) $(EVAL_DIR)/tests/unit/ -v
