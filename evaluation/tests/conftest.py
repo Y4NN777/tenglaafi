@@ -1,14 +1,60 @@
 """
-evaluation/tests/conftest.py
-Fixtures pytest partagées pour tous les tests - 
+Configuration centralisée des tests Pytest pour le projet Tenglaafi.
+
+Ce fichier définit toutes les **fixtures partagées** et la configuration
+globale des tests unitaires et d’intégration. Il garantit un environnement
+de test cohérent, isolé et reproductible pour le pipeline RAG complet.
+
+Fonctionnalités principales
+---------------------------
+1. **Fixtures de données**
+   - `sample_corpus` : génère un corpus médical simulé de 10 documents.
+   - `temp_corpus_file` : écrit ce corpus dans un fichier JSON temporaire.
+   - `temp_chroma_dir` : crée un répertoire ChromaDB isolé pour les tests.
+
+2. **Fixtures de composants**
+   - `embedding_manager` : instance unique d’`EmbeddingManager` pour la session.
+   - `vector_store` : crée une base Chroma temporaire pour chaque test, puis la réinitialise.
+   - `llm_client` : client `MedicalLLM` avec gestion du token Hugging Face.
+   - `rag_pipeline` : instancie un pipeline RAG complet (corpus, embeddings, LLM, Chroma)
+     avec `force_reindex=True` pour des tests reproductibles.
+
+3. **Fixtures API**
+   - `api_client` : client `TestClient` (FastAPI) pour les tests d’API.  
+     Peut être activé en important `src.server.main:app`.
+
+4. **Configuration des marqueurs Pytest**
+   - `slow` : tests lents (>5 secondes).
+   - `integration` : tests d’intégration end-to-end.
+   - `requires_hf_token` : tests nécessitant un token Hugging Face.
+   - `performance` : tests de charge ou de benchmark.
+
+Utilisation typique
+-------------------
+Ces fixtures sont automatiquement injectées dans les tests selon leurs noms :
+    def test_rag_query(rag_pipeline):
+        answer, sources = rag_pipeline.query("Qu’est-ce que le paludisme ?")
+        assert isinstance(answer, str)
+        assert len(sources) > 0
+
+Bonnes pratiques
+----------------
+- Ne pas modifier les chemins ou tokens directement dans les tests :
+  centraliser ces changements ici pour cohérence.
+- Conserver les fixtures **sans dépendance réseau** quand c’est possible
+  (mocker les appels HTTP dans les tests unitaires).
+- Nettoyer systématiquement les répertoires temporaires après chaque test.
+- Garder une portée `session` pour les composants coûteux (embeddings, modèle).
+
+Auteur : Y4NN777
 """
+
 import pytest
 import sys
 from pathlib import Path
 import tempfile
 import json
 
-# Ajouter src au path - ADAPTÉ À LA NOUVELLE STRUCTURE
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from src.core.config import DATA_DIR, CHROMA_DIR
