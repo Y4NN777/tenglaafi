@@ -1,0 +1,59 @@
+(tenglaafi) y4nn_777@theY7machine:~/Y7_Projects/AI_ML/tenglaafi$ make test
+Exécution des tests...
+==================================================================================== test session starts =====================================================================================
+platform linux -- Python 3.12.12, pytest-8.4.2, pluggy-1.6.0 -- /home/y4nn_777/miniconda3/envs/tenglaafi/bin/python3.12
+cachedir: .pytest_cache
+rootdir: /home/y4nn_777/Y7_Projects/AI_ML/tenglaafi
+configfile: pytest.ini
+plugins: anyio-4.8.0, cov-7.0.0, asyncio-1.2.0, langsmith-0.4.39
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 44 items                                                                                                                                                                           
+
+evaluation/tests/integration/test_rag_pipeline.py::TestRAGPipelineIntegration::test_full_pipeline_initialization PASSED                                                                [  2%]
+evaluation/tests/integration/test_rag_pipeline.py::TestRAGPipelineIntegration::test_end_to_end_query PASSED                                                                            [  4%]
+evaluation/tests/integration/test_rag_pipeline.py::TestRAGPipelineIntegration::test_cache_functionality PASSED                                                                         [  6%]
+evaluation/tests/integration/test_rag_pipeline.py::TestRAGPipelineIntegration::test_batch_query PASSED                                                                                 [  9%]
+evaluation/tests/integration/test_rag_pipeline.py::TestRAGPipelineIntegration::test_empty_question_quick PASSED                                                                        [ 11%]
+evaluation/tests/unit/test_data_utils.py::TestWebScraper::test_clean_text_removes_extra_spaces PASSED                                                                                  [ 13%]
+evaluation/tests/unit/test_data_utils.py::TestWebScraper::test_clean_text_handles_empty_string PASSED                                                                                  [ 15%]
+evaluation/tests/unit/test_data_utils.py::TestWebScraper::test_clean_text_normalizes_apostrophes PASSED                                                                                [ 18%]
+evaluation/tests/unit/test_data_utils.py::TestWebScraper::test_validate_content_rejects_short_text PASSED                                                                              [ 20%]
+evaluation/tests/unit/test_data_utils.py::TestWebScraper::test_validate_content_accepts_valid_text PASSED                                                                              [ 22%]
+evaluation/tests/unit/test_data_utils.py::TestWebScraper::test_validate_content_rejects_spam PASSED                                                                                    [ 25%]
+evaluation/tests/unit/test_data_utils.py::TestWebScraper::test_fetch_url_detects_pdf PASSED                                                                                            [ 27%]
+evaluation/tests/unit/test_data_utils.py::TestWebScraper::test_fetch_url_parses_html_happy_path PASSED                                                                                 [ 29%]
+evaluation/tests/unit/test_data_utils.py::TestWebScraper::test_fetch_url_invalid_content_returns_none PASSED                                                                           [ 31%]
+evaluation/tests/unit/test_data_utils.py::TestWebScraper::test_fetch_url_handles_timeout PASSED                                                                                        [ 34%]
+evaluation/tests/unit/test_data_utils.py::TestWebScraper::test_fetch_url_handles_request_exception PASSED                                                                              [ 36%]
+evaluation/tests/unit/test_data_utils.py::TestPubMedAPI::test_search_articles_returns_pmids PASSED                                                                                     [ 38%]
+evaluation/tests/unit/test_data_utils.py::TestPubMedAPI::test_search_articles_handles_error PASSED                                                                                     [ 40%]
+evaluation/tests/unit/test_data_utils.py::TestPubMedAPI::test_fetch_abstract_returns_dict PASSED                                                                                       [ 43%]
+evaluation/tests/unit/test_data_utils.py::TestPubMedAPI::test_fetch_abstract_returns_none_when_no_abstract PASSED                                                                      [ 45%]
+evaluation/tests/unit/test_data_utils.py::TestPubMedAPI::test_fetch_abstract_handles_error PASSED                                                                                      [ 47%]
+evaluation/tests/unit/test_data_utils.py::TestMedicalTextSplitter::test_medical_text_splitter_basic PASSED                                                                             [ 50%]
+evaluation/tests/unit/test_data_utils.py::TestPDFLoader::test_load_pdfs_from_empty_directory PASSED                                                                                    [ 52%]
+evaluation/tests/unit/test_data_utils.py::TestPDFLoader::test_load_pdfs_from_nonexistent_directory PASSED                                                                              [ 54%]
+evaluation/tests/unit/test_data_utils.py::TestPDFLoader::test_load_pdfs_happy_path_with_chunks PASSED                                                                                  [ 56%]
+evaluation/tests/unit/test_embeddings.py::TestEmbeddingManagerUnit::test_init_sets_model_and_dimension PASSED                                                                          [ 59%]
+evaluation/tests/unit/test_embeddings.py::TestEmbeddingManagerUnit::test_embed_query_empty_returns_empty_array PASSED                                                                  [ 61%]
+evaluation/tests/unit/test_embeddings.py::TestEmbeddingManagerUnit::test_embed_query_shape_and_norm PASSED                                                                             [ 63%]
+evaluation/tests/unit/test_embeddings.py::TestEmbeddingManagerUnit::test_embed_texts_batch_shapes_and_distinct PASSED                                                                  [ 65%]
+evaluation/tests/unit/test_embeddings.py::TestEmbeddingManagerUnit::test_embed_texts_empty_list PASSED                                                                                 [ 68%]
+evaluation/tests/unit/test_embeddings.py::TestEmbeddingManagerUnit::test_compute_similarity_on_normalized_vectors PASSED                                                               [ 70%]
+evaluation/tests/unit/test_embeddings.py::TestEmbeddingManagerUnit::test_compute_similarity_raises_on_shape_mismatch PASSED                                                            [ 72%]
+evaluation/tests/unit/test_embeddings.py::TestEmbeddingManagerUnit::test_init_raises_when_model_fails PASSED                                                                           [ 75%]
+evaluation/tests/unit/test_embeddings.py::test_singleton_and_wrappers PASSED                                                                                                           [ 77%]
+evaluation/tests/unit/test_llm.py::TestMedicalLLM::test_initialization PASSED                                                                                                          [ 79%]
+evaluation/tests/unit/test_llm.py::TestMedicalLLM::test_generate_answer_returns_string PASSED                                                                                          [ 81%]
+evaluation/tests/unit/test_llm.py::TestMedicalLLM::test_generate_answer_uses_context PASSED                                                                                            [ 84%]
+evaluation/tests/unit/test_llm.py::test_initialization_fails_without_token PASSED                                                                                                      [ 86%]
+evaluation/tests/unit/test_vector_store.py::TestChromaVectorStore::test_initialization PASSED                                                                                          [ 88%]
+evaluation/tests/unit/test_vector_store.py::TestChromaVectorStore::test_count_documents_initially_zero PASSED                                                                          [ 90%]
+evaluation/tests/unit/test_vector_store.py::TestChromaVectorStore::test_index_documents PASSED                                                                                         [ 93%]
+evaluation/tests/unit/test_vector_store.py::TestChromaVectorStore::test_search_returns_results PASSED                                                                                  [ 95%]
+evaluation/tests/unit/test_vector_store.py::TestChromaVectorStore::test_get_document_by_id PASSED                                                                                      [ 97%]
+evaluation/tests/unit/test_vector_store.py::TestChromaVectorStore::test_health_check PASSED                                                                                            [100%]
+
+=============================================================================== 44 passed in 177.89s (0:02:57) ===============================================================================
+(tenglaafi) y4nn_777@theY7machine:~/Y7_Projects/AI_ML/tenglaafi$ 
+

@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "question": "Quels sont les principaux symptômes du paludisme non compliqué ?",
+    "expected_answer": "Fièvre élevée par accès, frissons, céphalées, myalgies, asthénie; parfois nausées et sueurs.",
+    "expected_keywords": ["fièvre", "frissons", "céphalées", "myalgies", "sueurs"]
+  },
+  {
+    "id": 2,
+    "question": "Quel parasite et quel vecteur transmettent le paludisme ?",
+    "expected_answer": "Parasite Plasmodium, transmis par des moustiques femelles du genre Anopheles.",
+    "expected_keywords": ["Plasmodium", "Anopheles", "moustique"]
+  },
+  {
+    "id": 3,
+    "question": "Quels traitements antipaludiques à base d’artémisinine (ACT) et mentions d’Artemisia annua sont rapportés ?",
+    "expected_answer": "Les ACT sont le traitement de première intention; Artemisia annua est citée comme source d’artémisinine/antipaludial.",
+    "expected_keywords": ["ACT", "artémisinine", "Artemisia annua", "antipaludial"]
+  },
+  {
+    "id": 4,
+    "question": "Citez deux signes d’alarme de dengue sévère.",
+    "expected_answer": "Douleurs abdominales intenses, vomissements persistants, saignements muqueux, léthargie, hématocrite élevé avec thrombopénie.",
+    "expected_keywords": ["saignements", "douleurs abdominales", "vomissements persistants", "thrombopénie"]
+  },
+  {
+    "id": 5,
+    "question": "Quel est le moyen principal de prévention de la fièvre jaune ?",
+    "expected_answer": "La vaccination antiamarile (vaccin vivant atténué).",
+    "expected_keywords": ["vaccin", "antiamaril","antiamarile", "vivant atténué"]
+  },
+  {
+    "id": 6,
+    "question": "Comment se transmet la schistosomiase et quel organe est le plus touché dans la forme intestinale ?",
+    "expected_answer": "Par pénétration transcutanée de cercaires en eau douce; l’intestin et le foie (hypertension portale) sont principalement touchés.",
+    "expected_keywords": ["cercaires", "eau douce", "transcutanée", "intestin", "foie"]
+  },
+  {
+    "id": 7,
+    "question": "Quel parasite cause la filariose lymphatique et quelle complication chronique est typique ?",
+    "expected_answer": "Wuchereria bancrofti (ou Brugia spp.); lymphœdème/éléphantiasis chronique.",
+    "expected_keywords": ["Wuchereria", "Brugia", "lymphœdème", "éléphantiasis"]
+  },
+  {
+    "id": 8,
+    "question": "Quel signe oculaire majeur et quelle évolution visuelle sont rapportés dans l’onchocercose ?",
+    "expected_answer": "Kératite sclérosante avec atteinte progressive menant à la cécité.",
+    "expected_keywords": ["kératite sclérosante", "cécité", "Onchocerca volvulus", "onchocercose"]
+  },
+  {
+    "id": 9,
+    "question": "Décrivez brièvement l’approche SAFE pour le trachome.",
+    "expected_answer": "Surgery (chirurgie), Antibiotics, Facial cleanliness (hygiène faciale), Environmental improvement (améliorations environnementales).",
+    "expected_keywords": ["Surgery", "Antibiotics", "Facial cleanliness", "Environmental improvement", "SAFE"]
+  },
+  {
+    "id": 10,
+    "question": "Quels signes orientent vers une leishmaniose viscérale ?",
+    "expected_answer": "Fièvre prolongée, splénomégalie, amaigrissement, pancytopénie, hypergammaglobulinémie.",
+    "expected_keywords": ["splénomégalie", "pancytopénie", "fièvre prolongée", "leishmaniose viscérale"]
+  },
+  {
+    "id": 11,
+    "question": "Quelle prévention de base recommander contre les géohelminthiases ?",
+    "expected_answer": "Assainissement, hygiène des mains, port de chaussures, contrôle des excrétas; déparasitage périodique en population.",
+    "expected_keywords": ["assainissement", "hygiène", "chaussures", "déparasitage"]
+  },
+  {
+    "id": 12,
+    "question": "Quels sont les principaux symptômes du choléra ?",
+    "expected_answer": "Diarrhée aqueuse profuse en « eau de riz », vomissements, déshydratation rapide.",
+    "expected_keywords": ["diarrhée aqueuse", "eau de riz", "déshydratation", "vomissements"]
+  },
+  {
+    "id": 13,
+    "question": "Comment se transmet la rage et quelle est la conduite post-exposition ?",
+    "expected_answer": "Par morsure/salive d’un animal infecté; lavage immédiat de la plaie + vaccination post-exposition (et immunoglobulines si indiqué).",
+    "expected_keywords": ["morsure", "vaccination post-exposition", "immunoglobulines", "lavage"]
+  },
+  {
+    "id": 14,
+    "question": "Quel est le statut actuel de la dracunculose et la mesure clé de prévention ?",
+    "expected_answer": "Maladie proche de l’éradication; filtrer l’eau et éviter de contaminer les points d’eau.",
+    "expected_keywords": ["dracunculose", "éradication", "filtrer l’eau", "prévention"]
+  },
+  {
+    "id": 15,
+    "question": "Quel est le traitement communautaire de référence pour l’onchocercose ?",
+    "expected_answer": "Distribution massive d’ivermectine à intervalles réguliers dans les zones endémiques.",
+    "expected_keywords": ["ivermectine", "distribution massive", "communautaire"]
+  },
+  {
+    "id": 16,
+    "question": "Quelle plante médicinale est citée contre le paludisme et comment ses dérivés sont-ils utilisés en thérapeutique moderne ?",
+    "expected_answer": "Artemisia annua; dérivés utilisés dans les ACT (artémisinine et partenaires).",
+    "expected_keywords": ["Artemisia annua", "artémisinine", "ACT", "associations à base d’artémisinine"]
+  },
+  {
+    "id": 17,
+    "question": "Quels examens confirment une schistosomiase urogénitale et quel traitement proposer ?",
+    "expected_answer": "Œufs dans les urines (ou biopsie) ± sérologie; traitement par praziquantel.",
+    "expected_keywords": ["œufs dans les urines", "praziquantel", "diagnostic", "schistosomiase urogénitale"]
+  },
+  {
+    "id": 18,
+    "question": "Qu’est-ce que la leishmaniose cutanée et quel vecteur est en cause ?",
+    "expected_answer": "Infection cutanée à Leishmania provoquant des ulcères; transmise par piqûre de phlébotomes (moucherons).",
+    "expected_keywords": ["Leishmania", "phlébotome", "ulcères cutanés"]
+  },
+  {
+    "id": 19,
+    "question": "Quelle mesure « One Health » est essentielle pour prévenir l’échinococcose ?",
+    "expected_answer": "Contrôle/vermicufage des chiens et gestion hygiénique des abats pour interrompre le cycle chien–bétail–humain.",
+    "expected_keywords": ["chiens", "vermifuge", "abats", "One Health", "cycle"]
+  },
+  {
+    "id": 20,
+    "question": "Quels éléments cliniques et paracliniques distinguent la dengue du paludisme en première intention ?",
+    "expected_answer": "Dengue : myalgies diffuses, thrombopénie, hémoconcentration; Paludisme : fièvre par accès, frottis/goutte épaisse positifs.",
+    "expected_keywords": ["thrombopénie", "hémoconcentration", "frottis", "goutte épaisse", "myalgies"]
+  }
+]
