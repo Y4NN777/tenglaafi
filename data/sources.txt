@@ -1,0 +1,160 @@
+# Sources Médicales Tropicales
+
+
+## WHO (20 documents)
+1	Dengue et dengue sévère	https://www.who.int/fr/news-room/fact-sheets/detail/dengue-and-severe-dengue
+2	Principaux repères sur la fièvre jaune	https://www.who.int/fr/news-room/fact-sheets/detail/yellow-fever
+3	Principaux repères sur la leishmaniose	https://www.who.int/fr/news-room/fact-sheets/detail/leishmaniasis
+4	Schistosomiase	https://www.who.int/fr/news-room/fact-sheets/detail/schistosomiasis
+5	Filariose lymphatique	https://www.who.int/fr/news-room/fact-sheets/detail/lymphatic-filariasis
+6	Onchocercose	https://www.who.int/fr/news-room/fact-sheets/detail/onchocerciasis
+7	Géohelminthiases	https://www.who.int/fr/news-room/fact-sheets/detail/soil-transmitted-helminth-infections
+8	Maladie de Chagas (ou trypanosomiase américaine)	https://www.who.int/fr/news-room/fact-sheets/detail/chagas-disease-(american-trypanosomiasis)
+11	Principaux repères	https://www.who.int/fr/news-room/fact-sheets
+12	Fact sheets - PAHOWHO Pan American Health Organization	https://www.paho.org/en/fact-sheets
+13	Vector-borne diseases	https://www.who.int/news-room/fact-sheets/detail/vector-borne-diseases
+14	Principaux repères de l'OMS sur la rage	https://www.who.int/fr/news-room/fact-sheets/detail/rabies
+15	Principaux repères sur la dracunculose ou maladie du ver de Guinée.	https://www.who.int/fr/news-room/fact-sheets/detail/dracunculiasis-(guinea-worm-disease)
+16	Lèpre (maladie de Hansen)	https://www.who.int/fr/news-room/fact-sheets/detail/leprosy
+17	Principaux repères de l'OMS sur le trachome	https://www.who.int/fr/news-room/fact-sheets/detail/trachoma
+18	Principaux repères sur le mycétome	https://www.who.int/fr/news-room/fact-sheets/detail/mycetoma
+19	Pian	https://www.who.int/fr/news-room/fact-sheets/detail/yaws
+20	Échinococcose	https://www.who.int/fr/news-room/fact-sheets/detail/echinococcosis
+21	Trématodoses d'origine alimentaire	https://www.who.int/fr/news-room/fact-sheets/detail/foodborne-trematodiases
+24	Neglected, Tropical and Vector Borne Diseases - PAHOWHO Pan American Health Organization	https://www.paho.org/en/topics/neglected-tropical-and-vector-borne-diseases
+
+## PubMed (121 documents)
+1000	PubMed_41182632	https://pubmed.ncbi.nlm.nih.gov/41182632/
+1001	PubMed_41182622	https://pubmed.ncbi.nlm.nih.gov/41182622/
+1002	PubMed_41181881	https://pubmed.ncbi.nlm.nih.gov/41181881/
+1003	PubMed_41181113	https://pubmed.ncbi.nlm.nih.gov/41181113/
+1004	PubMed_41180379	https://pubmed.ncbi.nlm.nih.gov/41180379/
+1005	PubMed_41180275	https://pubmed.ncbi.nlm.nih.gov/41180275/
+1006	PubMed_41179884	https://pubmed.ncbi.nlm.nih.gov/41179884/
+1007	PubMed_41179642	https://pubmed.ncbi.nlm.nih.gov/41179642/
+1008	PubMed_41179551	https://pubmed.ncbi.nlm.nih.gov/41179551/
+1009	PubMed_41179539	https://pubmed.ncbi.nlm.nih.gov/41179539/
+1010	PubMed_41178124	https://pubmed.ncbi.nlm.nih.gov/41178124/
+1011	PubMed_41171764	https://pubmed.ncbi.nlm.nih.gov/41171764/
+1012	PubMed_41162860	https://pubmed.ncbi.nlm.nih.gov/41162860/
+1013	PubMed_41162617	https://pubmed.ncbi.nlm.nih.gov/41162617/
+1014	PubMed_41155263	https://pubmed.ncbi.nlm.nih.gov/41155263/
+1015	PubMed_41148658	https://pubmed.ncbi.nlm.nih.gov/41148658/
+1016	PubMed_41119316	https://pubmed.ncbi.nlm.nih.gov/41119316/
+1017	PubMed_41116149	https://pubmed.ncbi.nlm.nih.gov/41116149/
+1018	PubMed_41106792	https://pubmed.ncbi.nlm.nih.gov/41106792/
+1019	PubMed_41162496	https://pubmed.ncbi.nlm.nih.gov/41162496/
+1020	PubMed_41155688	https://pubmed.ncbi.nlm.nih.gov/41155688/
+1021	PubMed_41136979	https://pubmed.ncbi.nlm.nih.gov/41136979/
+1022	PubMed_41135560	https://pubmed.ncbi.nlm.nih.gov/41135560/
+1023	PubMed_41132222	https://pubmed.ncbi.nlm.nih.gov/41132222/
+1024	PubMed_41120673	https://pubmed.ncbi.nlm.nih.gov/41120673/
+1025	PubMed_41115483	https://pubmed.ncbi.nlm.nih.gov/41115483/
+1026	PubMed_41112670	https://pubmed.ncbi.nlm.nih.gov/41112670/
+1027	PubMed_41092928	https://pubmed.ncbi.nlm.nih.gov/41092928/
+1028	PubMed_41092927	https://pubmed.ncbi.nlm.nih.gov/41092927/
+1029	PubMed_41168903	https://pubmed.ncbi.nlm.nih.gov/41168903/
+1030	PubMed_41164411	https://pubmed.ncbi.nlm.nih.gov/41164411/
+1031	PubMed_41160559	https://pubmed.ncbi.nlm.nih.gov/41160559/
+1032	PubMed_41160271	https://pubmed.ncbi.nlm.nih.gov/41160271/
+1033	PubMed_41155688	https://pubmed.ncbi.nlm.nih.gov/41155688/
+1034	PubMed_41153059	https://pubmed.ncbi.nlm.nih.gov/41153059/
+1035	PubMed_41138269	https://pubmed.ncbi.nlm.nih.gov/41138269/
+1036	PubMed_41137017	https://pubmed.ncbi.nlm.nih.gov/41137017/
+1037	PubMed_41121359	https://pubmed.ncbi.nlm.nih.gov/41121359/
+1038	PubMed_41108693	https://pubmed.ncbi.nlm.nih.gov/41108693/
+1039	PubMed_41147465	https://pubmed.ncbi.nlm.nih.gov/41147465/
+1040	PubMed_41076144	https://pubmed.ncbi.nlm.nih.gov/41076144/
+1041	PubMed_41068871	https://pubmed.ncbi.nlm.nih.gov/41068871/
+1042	PubMed_41028755	https://pubmed.ncbi.nlm.nih.gov/41028755/
+1043	PubMed_40901832	https://pubmed.ncbi.nlm.nih.gov/40901832/
+1044	PubMed_40867523	https://pubmed.ncbi.nlm.nih.gov/40867523/
+1045	PubMed_40862548	https://pubmed.ncbi.nlm.nih.gov/40862548/
+1046	PubMed_40844983	https://pubmed.ncbi.nlm.nih.gov/40844983/
+1047	PubMed_40812518	https://pubmed.ncbi.nlm.nih.gov/40812518/
+1048	PubMed_40756346	https://pubmed.ncbi.nlm.nih.gov/40756346/
+1049	PubMed_40901661	https://pubmed.ncbi.nlm.nih.gov/40901661/
+1050	PubMed_40881566	https://pubmed.ncbi.nlm.nih.gov/40881566/
+1051	PubMed_40821711	https://pubmed.ncbi.nlm.nih.gov/40821711/
+1052	PubMed_40532617	https://pubmed.ncbi.nlm.nih.gov/40532617/
+1053	PubMed_40472397	https://pubmed.ncbi.nlm.nih.gov/40472397/
+1054	PubMed_40365176	https://pubmed.ncbi.nlm.nih.gov/40365176/
+1055	PubMed_40242687	https://pubmed.ncbi.nlm.nih.gov/40242687/
+1056	PubMed_40230792	https://pubmed.ncbi.nlm.nih.gov/40230792/
+1057	PubMed_40156810	https://pubmed.ncbi.nlm.nih.gov/40156810/
+1058	PubMed_40154100	https://pubmed.ncbi.nlm.nih.gov/40154100/
+1059	PubMed_41177169	https://pubmed.ncbi.nlm.nih.gov/41177169/
+1060	PubMed_41174302	https://pubmed.ncbi.nlm.nih.gov/41174302/
+1061	PubMed_41173066	https://pubmed.ncbi.nlm.nih.gov/41173066/
+1062	PubMed_41169530	https://pubmed.ncbi.nlm.nih.gov/41169530/
+1063	PubMed_41168821	https://pubmed.ncbi.nlm.nih.gov/41168821/
+1064	PubMed_41166344	https://pubmed.ncbi.nlm.nih.gov/41166344/
+1065	PubMed_41161395	https://pubmed.ncbi.nlm.nih.gov/41161395/
+1066	PubMed_41176393	https://pubmed.ncbi.nlm.nih.gov/41176393/
+1067	PubMed_41143074	https://pubmed.ncbi.nlm.nih.gov/41143074/
+1068	PubMed_41126298	https://pubmed.ncbi.nlm.nih.gov/41126298/
+1069	PubMed_41087950	https://pubmed.ncbi.nlm.nih.gov/41087950/
+1070	PubMed_41025254	https://pubmed.ncbi.nlm.nih.gov/41025254/
+1071	PubMed_41017776	https://pubmed.ncbi.nlm.nih.gov/41017776/
+1072	PubMed_41015051	https://pubmed.ncbi.nlm.nih.gov/41015051/
+1073	PubMed_41013685	https://pubmed.ncbi.nlm.nih.gov/41013685/
+1074	PubMed_41009833	https://pubmed.ncbi.nlm.nih.gov/41009833/
+1075	PubMed_40972751	https://pubmed.ncbi.nlm.nih.gov/40972751/
+1076	PubMed_40658735	https://pubmed.ncbi.nlm.nih.gov/40658735/
+1077	PubMed_40352114	https://pubmed.ncbi.nlm.nih.gov/40352114/
+1078	PubMed_37719535	https://pubmed.ncbi.nlm.nih.gov/37719535/
+1079	PubMed_37143036	https://pubmed.ncbi.nlm.nih.gov/37143036/
+1080	PubMed_36617576	https://pubmed.ncbi.nlm.nih.gov/36617576/
+1081	PubMed_12639738	https://pubmed.ncbi.nlm.nih.gov/12639738/
+1082	PubMed_41101186	https://pubmed.ncbi.nlm.nih.gov/41101186/
+1083	PubMed_41095247	https://pubmed.ncbi.nlm.nih.gov/41095247/
+1084	PubMed_39196821	https://pubmed.ncbi.nlm.nih.gov/39196821/
+1085	PubMed_38515660	https://pubmed.ncbi.nlm.nih.gov/38515660/
+1086	PubMed_37705864	https://pubmed.ncbi.nlm.nih.gov/37705864/
+1087	PubMed_36577457	https://pubmed.ncbi.nlm.nih.gov/36577457/
+1088	PubMed_36399185	https://pubmed.ncbi.nlm.nih.gov/36399185/
+1089	PubMed_36089201	https://pubmed.ncbi.nlm.nih.gov/36089201/
+1090	PubMed_35721148	https://pubmed.ncbi.nlm.nih.gov/35721148/
+1091	PubMed_35405253	https://pubmed.ncbi.nlm.nih.gov/35405253/
+1092	PubMed_41148138	https://pubmed.ncbi.nlm.nih.gov/41148138/
+1093	PubMed_41118354	https://pubmed.ncbi.nlm.nih.gov/41118354/
+1094	PubMed_41092928	https://pubmed.ncbi.nlm.nih.gov/41092928/
+1095	PubMed_41092926	https://pubmed.ncbi.nlm.nih.gov/41092926/
+1096	PubMed_41088037	https://pubmed.ncbi.nlm.nih.gov/41088037/
+1097	PubMed_41084606	https://pubmed.ncbi.nlm.nih.gov/41084606/
+1098	PubMed_41082884	https://pubmed.ncbi.nlm.nih.gov/41082884/
+1099	PubMed_41080465	https://pubmed.ncbi.nlm.nih.gov/41080465/
+1100	PubMed_41071808	https://pubmed.ncbi.nlm.nih.gov/41071808/
+1101	PubMed_41181113	https://pubmed.ncbi.nlm.nih.gov/41181113/
+1102	PubMed_41178789	https://pubmed.ncbi.nlm.nih.gov/41178789/
+1103	PubMed_41173066	https://pubmed.ncbi.nlm.nih.gov/41173066/
+1104	PubMed_41170573	https://pubmed.ncbi.nlm.nih.gov/41170573/
+1105	PubMed_41167952	https://pubmed.ncbi.nlm.nih.gov/41167952/
+1106	PubMed_41167945	https://pubmed.ncbi.nlm.nih.gov/41167945/
+1107	PubMed_41167941	https://pubmed.ncbi.nlm.nih.gov/41167941/
+1108	PubMed_41167939	https://pubmed.ncbi.nlm.nih.gov/41167939/
+1109	PubMed_41165304	https://pubmed.ncbi.nlm.nih.gov/41165304/
+1110	PubMed_41164979	https://pubmed.ncbi.nlm.nih.gov/41164979/
+1111	PubMed_41181113	https://pubmed.ncbi.nlm.nih.gov/41181113/
+1112	PubMed_41135800	https://pubmed.ncbi.nlm.nih.gov/41135800/
+1113	PubMed_41071742	https://pubmed.ncbi.nlm.nih.gov/41071742/
+1114	PubMed_41063982	https://pubmed.ncbi.nlm.nih.gov/41063982/
+1115	PubMed_41063484	https://pubmed.ncbi.nlm.nih.gov/41063484/
+1116	PubMed_41053546	https://pubmed.ncbi.nlm.nih.gov/41053546/
+1117	PubMed_41051941	https://pubmed.ncbi.nlm.nih.gov/41051941/
+1118	PubMed_41037401	https://pubmed.ncbi.nlm.nih.gov/41037401/
+1119	PubMed_41005346	https://pubmed.ncbi.nlm.nih.gov/41005346/
+1120	PubMed_41000379	https://pubmed.ncbi.nlm.nih.gov/41000379/
+
+## MedicinalPlants (11 documents)
+3000	La part oubliée de l'étude des pharmacopées traditionnelles africaines	https://journals.openedition.org/ethnoecologie/8925?lang=en
+3001	African Herbal Medicines: Adverse Effects and Cytotoxic Potentials with Different Therapeutic Applications - PMC	https://pmc.ncbi.nlm.nih.gov/articles/PMC8199769/
+3002	PHARMEL: African Medicinal Plants Database PDF Wellness Medical	https://www.scribd.com/document/516515095/La-banque-de-donnees-ethnobotaniques-PHARMEL-sur-les-plantes-medicinales-africaines
+3003	Traditional African medicine Research Starters EBSCO Research	https://www.ebsco.com/research-starters/health-and-medicine/traditional-african-medicine
+3004	PROTA, Introduction aux Plantes médicinales PlntUse	https://plantuse.plantnet.org/fr/PROTA,_Introduction_aux_Plantes_m%C3%A9dicinales
+3005	Pharmacopée africaine -	https://www.ethnopharmacologia.org/bibliotheque-ethnopharmacologie/pharmacopee-africaine/
+3006	TRADITIONAL MEDICINE AUC Library	https://library.au.int/traditional-medicine
+3007	w7261e	https://www.fao.org/4/w7261e/w7261e.pdf
+3008	HARVESTING OF NON-WOOD FOREST PRODUCTS	https://www.fao.org/4/y4496e/Y4496E42.htm
+3009	Monographies de l'OMS sur certaines plantes médicinales ECHOcommunity.org	https://www.echocommunity.org/fr/resources/f4cbe972-a04a-4bb7-9c14-641b823b5fe8
+3010	Medicinal Plants of Aromatic Potential from Burkina Faso: a Review: Revue des Plantes Médicinales à Potentiel Aromatique du Burkina Faso HEALTH RESEARCH IN AFRICA	https://hsd-fmsb.org/index.php/hra/article/view/5940
