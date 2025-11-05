@@ -24,13 +24,57 @@ const TengLaafiChat = (() => {
      * @returns {string} - Le texte sans les citations.
      */
     const removeCitations = (text) => {
-        // Regex pour capturer [Document X], (Document Y), Document Z, etc.
-        // où X, Y, Z sont des chiffres.
+        // Regex pour capturer [Document X], (Document 123), Document 123, etc.
+        // où X est un chiffre.
         // \[(?:Document\s\d+)\]  -> [Document 123]
         // \((?:Document\s\d+)\)  -> (Document 123)
         // Document\s\d+         -> Document 123 (sans parenthèses)
         return text.replace(/\[Document\s\d+\]|\(Document\s\d+\)|Document\s\d+/g, '').trim();
     };
+
+    /**
+     * Formate la réponse du bot pour une meilleure lisibilité.
+     * Convertit les listes numérotées et les paragraphes en HTML.
+     * @param {string} text - La réponse brute du bot.
+     * @returns {string} - La réponse formatée en HTML.
+     */
+    const formatResponse = (text) => {
+        if (!text) return "";
+
+        // Diviser le texte en lignes pour analyser les listes et les paragraphes
+        const lines = text.split('\n').filter(line => line.trim() !== '');
+        let formattedHtml = '';
+        let inList = false;
+
+        lines.forEach(line => {
+            const trimmedLine = line.trim();
+            // Détecter les éléments de liste numérotés
+            const listItemMatch = trimmedLine.match(/^(\d+[.)-]\s*)(.*)/);
+
+            if (listItemMatch) {
+                if (!inList) {
+                    formattedHtml += '<ol>';
+                    inList = true;
+                }
+                // Enlever le préfixe de numérotation pour la liste HTML
+                formattedHtml += `<li>${listItemMatch[2].trim()}</li>`;
+            } else {
+                if (inList) {
+                    formattedHtml += '</ol>';
+                    inList = false;
+                }
+                // Traiter comme un paragraphe
+                formattedHtml += `<p>${trimmedLine}</p>`;
+            }
+        });
+
+        if (inList) {
+            formattedHtml += '</ol>';
+        }
+
+        return formattedHtml;
+    };
+
 
     /**
      * Vérifie périodiquement la disponibilité du backend.
