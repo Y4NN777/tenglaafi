@@ -156,11 +156,11 @@ setup: ## Configuration initiale du projet (arborescence et fichiers)
 	@$(ECHO) "$(GREEN)Structure complète créée.$(NC)"
 
 verify-setup: ## Vérifie que le setup est correct
-	$(ECHO) "$(GREEN)Vérification du setup...$(NC)"
+	@$(ECHO) "$(GREEN)Vérification du setup...$(NC)"
 	test -f .env || (echo "$(RED).env manquant$(NC)"; exit 1)
-	test -d $(DATA_DIR) || (echo "$(RED)$(DATA_DIR)/ manquant$(NC)"; exit 1)
-	@if ! grep -q "^HF_TOKEN" .env 2>/dev/null; then echo "$(YELLOW)Avertissement: HF_TOKEN non configuré dans .env$(NC)"; fi
-	$(ECHO) "$(GREEN)Setup vérifié.$(NC)"
+	test -d $(DATA_DIR) || (@$(ECHO) "$(RED)$(DATA_DIR)/ manquant$(NC)"; exit 1)
+	@if ! grep -q "^HF_TOKEN" .env 2>/dev/null; then @$(ECHO) "$(YELLOW)Avertissement: HF_TOKEN non configuré dans .env$(NC)"; fi
+	@$(ECHO) "$(GREEN)Setup vérifié.$(NC)"
 
 ##@ Collecte de Données
 
@@ -260,16 +260,13 @@ test-parallel: ## Tests en parallèle (plus rapide)
 
 evaluate: ## Évalue le système RAG
 	@$(ECHO) "$(GREEN)Évaluation du système...$(NC)"
-	$(PYTHON) $(EVAL_DIR)/evaluate.py
+	$(PYTHON) $(EVAL_DIR)/scripts/evaluate.py
 
 evaluate-verbose: ## Évaluation avec détails
 	@$(ECHO) "$(GREEN)Évaluation détaillée...$(NC)"
-	$(PYTHON) $(EVAL_DIR)/evaluate.py --verbose
+	$(PYTHON) $(EVAL_DIR)/scripts/evaluate.py --verbose
 
-benchmark: ## Benchmark de performance (tests perf)
-	@$(ECHO) "$(GREEN)Benchmark...$(NC)"
-	$(PYTEST) $(EVAL_DIR)/tests/performance/ -v
-	@$(ECHO) "$(GREEN)Benchmark terminé.$(NC)"
+
 
 ##@ Développement & Debug
 
