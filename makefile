@@ -68,7 +68,7 @@ install: ## Installe les dépendances
 	$(PIP) install -r requirements.txt
 	@$(ECHO) "$(GREEN)Installation terminée.$(NC)"
 
-.PHONY: conda-env conda-install conda-info
+.PHONY: conda-env conda-install conda-info conda-activate-install conda-activate
 
 conda-env: ## Crée (si besoin) l'environnement conda 'tenglaafi'
 	@$(ECHO) "$(GREEN)Configuration de l'environnement conda...$(NC)"
@@ -93,6 +93,31 @@ conda-install: ## Installe requirements dans l'env conda sans l'activer dans le 
 		conda run -n tenglaafi $(PIP) install -r requirements.txt; \
 	else \
 		$(ECHO) "$(RED)Conda introuvable. Utilise plutôt: make install$(NC)"; \
+		exit 1; \
+	fi
+
+conda-activate: ## Active l'env conda 'tenglaafi' dans le shell courant
+	@$(ECHO) "$(GREEN)Activation de l'env conda 'tenglaafi'...$(NC)"
+	@if command -v conda >/dev/null 2>&1; then \
+		eval "$$(conda shell.bash hook)"; \
+		conda activate tenglaafi; \
+		$(ECHO) "$(YELLOW)Environnement 'tenglaafi' activé.$(NC)"; \
+	else \
+		$(ECHO) "$(RED)Conda introuvable.$(NC)"; \
+		exit 1; \
+	fi
+
+conda-activate-install: ## Active l'env conda et installe les dépendances (pour shell interactif)
+	@$(ECHO) "$(GREEN)Activation de l'env conda et installation des dépendances...$(NC)"
+	@if command -v conda >/dev/null 2>&1; then \
+		eval "$$(conda shell.bash hook)"; \
+		conda activate tenglaafi; \
+		$(ECHO) "$(YELLOW)Environnement 'tenglaafi' activé.$(NC)"; \
+		$(ECHO) "$(YELLOW)Installation des dépendances...$(NC)"; \
+		$(PIP) install -r requirements.txt; \
+		$(ECHO) "$(GREEN)Installation terminée. Vous êtes dans l'env 'tenglaafi'.$(NC)"; \
+	else \
+		$(ECHO) "$(RED)Conda introuvable.$(NC)"; \
 		exit 1; \
 	fi
 
@@ -131,11 +156,11 @@ setup: ## Configuration initiale du projet (arborescence et fichiers)
 	@$(ECHO) "$(GREEN)Structure complète créée.$(NC)"
 
 verify-setup: ## Vérifie que le setup est correct
-	$(ECHO) "$(GREEN)Vérification du setup...$(NC)"
+	@$(ECHO) "$(GREEN)Vérification du setup...$(NC)"
 	test -f .env || (echo "$(RED).env manquant$(NC)"; exit 1)
-	test -d $(DATA_DIR) || (echo "$(RED)$(DATA_DIR)/ manquant$(NC)"; exit 1)
-	@if ! grep -q "^HF_TOKEN" .env 2>/dev/null; then echo "$(YELLOW)Avertissement: HF_TOKEN non configuré dans .env$(NC)"; fi
-	$(ECHO) "$(GREEN)Setup vérifié.$(NC)"
+	test -d $(DATA_DIR) || (@$(ECHO) "$(RED)$(DATA_DIR)/ manquant$(NC)"; exit 1)
+	@if ! grep -q "^HF_TOKEN" .env 2>/dev/null; then @$(ECHO) "$(YELLOW)Avertissement: HF_TOKEN non configuré dans .env$(NC)"; fi
+	@$(ECHO) "$(GREEN)Setup vérifié.$(NC)"
 
 ##@ Collecte de Données
 
@@ -146,20 +171,18 @@ collect: ## Collecte les données (≥500 docs) via vos scripts
 
 validate-corpus: ## Valide le corpus (>= 500 docs)
 	@$(ECHO) "$(GREEN)Validation du corpus...$(NC)"
-	@$(PYTHON) - <<'PY'
-	import json, sys
-	p = '$(DATA_DIR)/corpus.json'
-	try:
-		with open(p, 'r', encoding='utf-8') as f:
-			corpus = json.load(f)
-	except Exception as e:
-		print("Erreur: impossible de lire", p, ":", e)
-		sys.exit(1)
-	n = len(corpus)
-	print(f"{n} documents dans le corpus")
-	assert n >= 500, f"Insuffisant: {n}/500 documents"
-	print("Corpus valide")
-	PY
+	@$(PYTHON) -c "\
+import json, sys, os; \
+p = os.path.join('$(DATA_DIR)', 'corpus.json'); \
+print('Validation du corpus depuis', p); \
+corpus = json.load(open(p, 'r', encoding='utf-8')); \
+n = len(corpus); \
+print(f'{n} documents dans le corpus'); \
+assert n >= 500, f'Corpus incomplet: {n}/500 documents'; \
+print('Corpus valide')"
+
+
+
 
 stats-corpus: ## Affiche des statistiques simples sur le corpus
 	@$(ECHO) "$(GREEN)Statistiques du corpus:$(NC)"
@@ -176,18 +199,18 @@ stats-corpus: ## Affiche des statistiques simples sur le corpus
 ##@ Indexation
 
 index: validate-corpus ## Indexe le corpus dans ChromaDB
-	$(ECHO) "$(GREEN)Indexation du corpus...$(NC)"
-	$(PYTHON) store_index.py
-	$(ECHO) "$(GREEN)Indexation terminée.$(NC)"
+	@$(ECHO) "$(GREEN)Indexation du corpus...$(NC)"
+	$(PYTHON) -m $(SRC_DIR).scripts.store_index
+	@$(ECHO) "$(GREEN)Indexation terminée.$(NC)"
 
 reindex: ## Réindexation complète (supprime l'index actuel)
-	$(ECHO) "$(YELLOW)Réindexation complète (suppression de l'index actuel).$(NC)"
+	@$(ECHO) "$(YELLOW)Réindexation complète (suppression de l'index actuel).$(NC)"
 	read -p "Continuer ? [y/N] " confirm; [ "$$confirm" = "y" ] || exit 1
 	rm -rf $(CHROMA_DIR)/*
 	$(MAKE) index
 
 check-index: ## Vérifie l'état de l'index ChromaDB
-	$(ECHO) "$(GREEN)Vérification de l'index...$(NC)"
+	@$(ECHO) "$(GREEN)Vérification de l'index...$(NC)"
 		@$(PYTHON) - <<'PY'
 	from $(SRC_DIR).rag_pipeline.vector_store import ChromaVectorStore
 	store = ChromaVectorStore()
@@ -200,25 +223,34 @@ check-index: ## Vérifie l'état de l'index ChromaDB
 ##@ Tests
 
 test: ## Exécute tous les tests
-	$(ECHO) "$(GREEN)Exécution des tests...$(NC)"
+	@$(ECHO) "$(GREEN)Exécution des tests...$(NC)"
 	$(PYTEST) $(EVAL_DIR)/tests/ -v --tb=short
 
+
+individual-unit-test: ## Exécute un test individuel (usage: make individual-test TEST=path/to/test_file.py)
+	@if [ -z "$(TEST)" ]; then \
+		$(ECHO) "$(RED)Erreur: variable TEST non définie. Usage: make individual-test TEST=path/to/test_file.py$(NC)"; \
+		exit 1; \
+	fi
+	@$(ECHO) "$(GREEN)Exécution du test individuel: $(TEST)$(NC)"
+	$(PYTEST) $(TEST) -v --tb=short
+
 test-unit: ## Tests unitaires uniquement
-	$(ECHO) "$(GREEN)Tests unitaires...$(NC)"
+	@$(ECHO) "$(GREEN)Tests unitaires...$(NC)"
 	$(PYTEST) $(EVAL_DIR)/tests/unit/ -v
 
 test-integration: ## Tests d'intégration uniquement
-	$(ECHO) "$(GREEN)Tests d'intégration...$(NC)"
+	@$(ECHO) "$(GREEN)Tests d'intégration...$(NC)"
 	$(PYTEST) $(EVAL_DIR)/tests/integration/ -v -m integration
 
 test-fast: ## Tests rapides (sans les lents)
-	@echo "$(GREEN)Tests rapides...$(NC)"
+	@$(ECHO) "$(GREEN)Tests rapides...$(NC)"
 	$(PYTEST) $(EVAL_DIR)/tests/ -v -m "not slow"
 
 test-coverage: ## Tests avec coverage
-	@echo "$(GREEN)Coverage...$(NC)"
+	@$(ECHO) "$(GREEN)Coverage...$(NC)"
 	$(PYTEST) $(EVAL_DIR)/tests/ --cov=$(SRC_DIR) --cov-report=html --cov-report=term
-	@echo "$(GREEN)Report HTML: htmlcov/index.html$(NC)"
+	@$(ECHO) "$(GREEN)Report HTML: htmlcov/index.html$(NC)"
 
 test-parallel: ## Tests en parallèle (plus rapide)
 	@$(ECHO) "$(GREEN)Tests parallèles...$(NC)"
@@ -228,16 +260,13 @@ test-parallel: ## Tests en parallèle (plus rapide)
 
 evaluate: ## Évalue le système RAG
 	@$(ECHO) "$(GREEN)Évaluation du système...$(NC)"
-	$(PYTHON) $(EVAL_DIR)/evaluate.py
+	$(PYTHON) $(EVAL_DIR)/scripts/evaluate.py
 
 evaluate-verbose: ## Évaluation avec détails
 	@$(ECHO) "$(GREEN)Évaluation détaillée...$(NC)"
-	$(PYTHON) $(EVAL_DIR)/evaluate.py --verbose
+	$(PYTHON) $(EVAL_DIR)/scripts/evaluate.py --verbose
 
-benchmark: ## Benchmark de performance (tests perf)
-	@$(ECHO) "$(GREEN)Benchmark...$(NC)"
-	$(PYTEST) $(EVAL_DIR)/tests/performance/ -v
-	@$(ECHO) "$(GREEN)Benchmark terminé.$(NC)"
+
 
 ##@ Développement & Debug
 
@@ -408,7 +437,7 @@ license: ## Affiche la licence
 ##@ Informations
 
 version: ## Affiche la version et paquets clés
-	$(ECHO) "$(GREEN)TengLaafi RAG v1.0.0$(NC)"
+	@$(ECHO) "$(GREEN)TengLaafi RAG v1.0.0$(NC)"
 	@$(PYTHON) --version
 	@$(ECHO) "Packages:"
 	@$(PIP) list | grep -E "fastapi|chromadb|sentence-transformers|langchain" || true
@@ -433,7 +462,7 @@ env-check: ## Vérifie les variables d'environnement
 ##@ Helpers
 
 watch: ## Relance les tests à chaque modification (nécessite inotifywait)
-	$(ECHO) "$(GREEN)Watch mode (Ctrl+C pour arrêter)...$(NC)"
+	@$(ECHO) "$(GREEN)Watch mode (Ctrl+C pour arrêter)...$(NC)"
 	@while true; do \
 	  $(PYTEST) $(EVAL_DIR)/tests/ -v --tb=short -x; \
 	  inotifywait -r -e modify $(SRC_DIR) $(EVAL_DIR); \

@@ -1,0 +1,105 @@
+id,question,expected_answer,expected_keywords,model_answer,retrieval_precision,semantic_similarity,answer_completeness,pertinence_5,response_time_sec,human_rating
+1,Quels sont les principaux symptômes du paludisme non compliqué ?,"Fièvre élevée par accès, frissons, céphalées, myalgies, asthénie; parfois nausées et sueurs.","fièvre, frissons, céphalées, myalgies, sueurs","Les principaux symptômes du paludisme non compliqué sont :
+
+1. Fièvre élevée, qui peut atteindre 40 °C ou plus.
+2. Chills (frissons) et suêtes.
+3. Douleurs articulaires et musculaires.
+4. Fatigue et malaise général.
+5. Têteache.
+6. Douleurs abdominales.
+7. Nausées et vomissements.
+8. Diarrhée.
+
+Ces symptômes sont décrits dans divers documents médicaux, tels que [Document 1039] et [Document 1099], mais il n'y a pas de mention spécifique des symptômes du paludisme non compliqué.",0.2,0.6778677701950073,0.4,2.834,,
+2,Quel parasite et quel vecteur transmettent le paludisme ?,"Parasite Plasmodium, transmis par des moustiques femelles du genre Anopheles.","Plasmodium, Anopheles, moustique","Le parasite responsable du paludisme est Plasmodium, et les moustiques Anopheles sont les vecteurs transmettant cette maladie. Cependant, il n'y a pas de mention spécifique du vecteur dans le contexte fourni pour le parasite Plasmodium knowlesi. [Document 1039] mentionne que Plasmodium knowlesi est un parasite responsable de la plupart des cas de paludisme en Malaisie, mais il n'y a pas de mention de son vecteur. [Document 4712] ne mentionne pas explicitement le parasite Plasmodium, mais il est clair que le contexte se réfère au paludisme, et les moustiques sont mentionnés comme vecteurs potentiels dans le contexte de la réduction de la population de moustiques à l'aide de l'endoda.",0.6666666666666666,0.7569921016693115,1.0,4.271,,
+3,Quels traitements antipaludiques à base d’artémisinine (ACT) et mentions d’Artemisia annua sont rapportés ?,Les ACT sont le traitement de première intention; Artemisia annua est citée comme source d’artémisinine/antipaludial.,"ACT, artémisinine, Artemisia annua, antipaludial","Les traitements antipaludiques à base d'artémisinine (ACT) et mentionnant Artemisia annua sont rapportés dans les documents suivants :
+
+- [Document 4216] : Le document mentionne que les plantes d'Artemisia annua ont des actions thérapeutiques antipaludiques.
+
+- [Document 1041] : Ce document parle de l'artemisinin, un composé extrait d'Artemisia annua, qui a été utilisé pour traiter le paludisme pendant des siècles. Il est également mentionné que l'artemisinin et hydroxychloroquine, un autre médicament antipaludique, ont des effets antifibrotiques et immunomodulateurs en plus de leur activité antimalarique. Cependant, ce document ne traite pas spécifiquement de l'utilisation d'Artemisia annua en tant que traitement antipaludique.",0.5,0.8139009475708008,0.75,3.942,,
+4,Citez deux signes d’alarme de dengue sévère.,"Douleurs abdominales intenses, vomissements persistants, saignements muqueux, léthargie, hématocrite élevé avec thrombopénie.","saignements, douleurs abdominales, vomissements persistants, thrombopénie","Les deux signes d'alarme de dengue sévère sont :
+
+1. **Hémorragies internes** : Elles peuvent prendre la forme de saignements de la peau, de la bouche, de la gorge, de la peau sous les ongles et les cheveux, de la peau autour des yeux, de la peau autour des oreilles, de la peau autour de la vulve ou de l'anus, de la peau autour du pénis, de la peau autour du scrotum, de la peau autour du cou, de la peau autour du coude, de la peau autour du poignet, de la peau autour du genou, de la peau autour du mollet, de la peau autour du talon, de la peau autour de la main, de la peau autour du pied, de la peau autour de la tête, de la peau autour du cou, de la peau autour du coude, de la peau autour du poignet, de la peau autour du genou, de la peau autour du mollet, de la peau autour du talon, de la peau autour de la main, de la peau autour du pied, de la peau autour de la tête, de la peau autour du cou, de la peau autour du coude, de la peau autour du poignet, de la peau autour du genou, de la peau autour du mollet, de la peau autour du talon, de la peau autour de la main, de la peau autour du pied, de la peau autour de la tête, de la peau autour du cou, de la peau autour du coude, de la peau autour du poignet, de la peau autour du genou, de la peau autour du mollet, de la peau autour du talon, de la peau autour de la main, de la peau autour du pied, de la peau autour de la tête, de la peau autour du cou, de la peau autour du coude, de la peau autour
+
+**Sources consultées:**
+- [1] Dengue et dengue sévère (Pertinence: 47%)
+- [1248] PubMed_41063484 (Pertinence: 38%)
+- [2] Principaux repères sur la fièvre jaune (Pertinence: 30%)
+",0.75,0.4324951767921448,0.25,1.797,,
+5,Quel est le moyen principal de prévention de la fièvre jaune ?,La vaccination antiamarile (vaccin vivant atténué).,"vaccin, antiamaril, antiamarile, vivant atténué","Le moyen principal de prévention de la fièvre jaune est de se protéger contre les moustiques qui transmettent la maladie. Cela peut être fait en utilisant des répellents de moustiques, en portant des vêtements longs et en utilisant des filets de lit impregnés de répellents. Une autre méthode de prévention est le vaccin antiamaril, qui est efficace, sûr et abordable. Une seule dose de vaccin suffit à conférer une protection à vie [Document 2].",0.75,0.6649546027183533,0.5,2.995,,
+6,Comment se transmet la schistosomiase et quel organe est le plus touché dans la forme intestinale ?,Par pénétration transcutanée de cercaires en eau douce; l’intestin et le foie (hypertension portale) sont principalement touchés.,"cercaires, eau douce, transcutanée, intestin, foie","La schistosomiase se transmet à l'homme par le contact avec de l'eau contaminée par des vers parasites appelés Schistosomes. Les personnes contractent l'infection dans le cadre de leurs activités agricoles, domestiques, professionnelles ou récréatives habituelles, qui les exposent à une eau contaminée [Document 4].
+
+Dans la forme intestinale de la maladie, le côlon est le plus touché.",0.6,0.51218581199646,0.2,1.937,,
+7,Quel parasite cause la filariose lymphatique et quelle complication chronique est typique ?,Wuchereria bancrofti (ou Brugia spp.); lymphœdème/éléphantiasis chronique.,"Wuchereria, Brugia, lymphœdème, éléphantiasis","La filariose lymphatique est causée par le parasite *Wuchereria bancrofti* [Document 5]. Une complication chronique typique de cette maladie est l'augmentation anormale du volume de certaines parties du corps, ce qui peut entraîner des douleurs, un handicap sévère et une stigmatisation sociale [Document 5].",1.0,0.5829038023948669,0.25,2.249,,
+8,Quel signe oculaire majeur et quelle évolution visuelle sont rapportés dans l’onchocercose ?,Kératite sclérosante avec atteinte progressive menant à la cécité.,"kératite sclérosante, cécité, Onchocerca volvulus, onchocercose","La principale évolution visuelle rapportée dans l'onchocercose est la déficience visuelle, qui peut aller jusqu'à la cécité. Cependant, les signes oculaires majeurs sont les lésions de la rétine, qui peuvent se manifester par des taches blanches ou des taches rouges, des déformations de la cornée, des cataractes et des ptérygiums (Document 6). Il est important de souligner que ces lésions peuvent prendre plusieurs années à se développer après l'infection initiale.
+
+**Sources consultées:**
+- [6] Onchocercose (Pertinence: 20%)
+- [4576] 2013_pharmacopee-des-plantes-medicinales-afrique-de-louest (chunk 576) (Pertinence: 17%)
+- [4926] 2013_pharmacopee-des-plantes-medicinales-afrique-de-louest (chunk 926) (Pertinence: 16%)
+",0.75,0.7226067781448364,0.5,3.168,,
+9,Décrivez brièvement l’approche SAFE pour le trachome.,"Surgery (chirurgie), Antibiotics, Facial cleanliness (hygiène faciale), Environmental improvement (améliorations environnementales).","Surgery, Antibiotics, Facial cleanliness, Environmental improvement, SAFE","L'approche SAFE (Surveillance, Antibiotérique, Facilitation de la hygiène et Éducation) est un programme de lutte contre le trachome, une maladie oculaire contagieuse qui touche principalement les populations vivant en zones rurales pauvres.
+
+1. Surveillance : Consiste à identifier les cas de trachome et à les enregistrer pour suivre l'évolution de l'épidémie.
+2. Antibiotérique : Consiste à administrer des antibiotiques à tous les membres de la famille pour traiter les cas actifs et les porteurs asymptomatiques, ce qui réduit la transmission de la maladie.
+3. Facilitation de la hygiène : Consiste à promouvoir des pratiques de hygiène oculaire simples et efficaces, telles que l'utilisation d'eau pour laver les yeux et les mains, pour réduire la transmission de la maladie.
+4. Éducation : Consiste à sensibiliser les populations à la maladie et à la nécessité de suivre les recommandations de l'approche SAFE pour réduire la transmission de la maladie.
+
+Cette approche est décrite dans le document [Document 5132] 2013_pharmacopee-des-plantes-medicinales-afrique-de-louest (chunk 1132).",0.0,0.4243224859237671,0.2,1.673,,
+10,Quels signes orientent vers une leishmaniose viscérale ?,"Fièvre prolongée, splénomégalie, amaigrissement, pancytopénie, hypergammaglobulinémie.","splénomégalie, pancytopénie, fièvre prolongée, leishmaniose viscérale","Les signes orientant vers une leishmaniose viscérale comprennent principalement les symptômes suivants :
+
+1. Fièvre élevée et persistante.
+2. Perte de poids et perte d'appétit.
+3. Douleurs abdominales.
+4. Anémie.
+5. Hépatosplénomégalie (augmentation de la taille du foie et du rein).
+6. Diarrhée.
+7. Douleurs osseuses.
+
+Ces symptômes sont décrits dans le document [Document 1157].",0.5,0.633994996547699,0.5,2.902,,
+11,Quelle prévention de base recommander contre les géohelminthiases ?,"Assainissement, hygiène des mains, port de chaussures, contrôle des excrétas; déparasitage périodique en population.","assainissement, hygiène, chaussures, déparasitage","La prévention de base contre les géohelminthiases est l'éducation sanitaire pour prévenir les réinfections. Il est important de respecter les règles d'assainissement pour réduire la contamination des sols par les œufs des vers parasites. Cela inclut l'utilisation de toilettes séparées des zones de vie et de culture, la désinfection des toilettes et des mains, l'entretien des sols et l'élimination des déchets humains. Il est également important de consommer des aliments cuits et de boire de l'eau potable. [Document 7]",0.75,0.6912554502487183,0.25,2.574,,
+12,Quels sont les principaux symptômes du choléra ?,"Diarrhée aqueuse profuse en « eau de riz », vomissements, déshydratation rapide.","diarrhée aqueuse, eau de riz, déshydratation, vomissements","Le choléra n'est pas explicitement mentionné dans le contexte fourni. Cependant, les symptômes du choléra comprennent des diarrhées liquides et abondantes, des vomissements, des pertes de liquides et de sels électrolytes, des pertes de poids et une déshydratation importante [Document 4891]. Il est important de noter que le choléra est une maladie grave qui nécessite un traitement médical immédiat. Si vous soupçonnez avoir le choléra, consultez un professionnel de santé immédiatement.",0.0,0.6006720066070557,0.5,2.802,,
+13,Comment se transmet la rage et quelle est la conduite post-exposition ?,Par morsure/salive d’un animal infecté; lavage immédiat de la plaie + vaccination post-exposition (et immunoglobulines si indiqué).,"morsure, vaccination post-exposition, immunoglobulines, lavage","La rage se transmet principalement par les morsures et les griffures de chiens infectés. Le virus de la rage peut également être transmis par contact avec le sang, les salives, les larmes ou les fluides cérébraux d'une personne infectée [Document 14].
+
+En cas de contact avec un animal suspecté de la rage, il est important de consulter immédiatement un professionnel de santé pour instaurer une prophylaxie post-exposition (PPE). La PPE consiste à administrer des vaccins et des anticorps pour empêcher le virus de la rage de pénétrer dans le système nerveux central et ainsi éviter le décès [Document 14].",0.75,0.5932140946388245,0.25,2.280,,
+14,Quel est le statut actuel de la dracunculose et la mesure clé de prévention ?,Maladie proche de l’éradication; filtrer l’eau et éviter de contaminer les points d’eau.,"dracunculose, éradication, filtrer l’eau, prévention","La dracunculose est une maladie infectieuse émergente et réémergente, dont plus de 75% des cas sont d'origine animale (zoonoses) [Document 5212]. La mesure clé de prévention est le système de surveillance active, qui permet aux autorités sanitaires de mieux anticiper les risques, cibler les interventions vaccinales et protéger durablement les communautés contre cette maladie invalidante [Document 5207].",0.0,0.6015226244926453,0.5,2.805,,
+15,Quel est le traitement communautaire de référence pour l’onchocercose ?,Distribution massive d’ivermectine à intervalles réguliers dans les zones endémiques.,"ivermectine, distribution massive, communautaire","Le traitement communautaire de référence pour l'onchocercose est l'ivermectine, qui est administré à des communautés entières, y compris celles qui sont hypoendémiques pour la maladie, dans le cadre d'une stratégie d'élimination de la maladie [Document 1068]. Cependant, il n'est pas spécifié dans le contexte fourni quelle soit la forme précise de l'ivermectine utilisée pour le traitement de l'onchocercose.",0.0,0.26995131373405457,0.6666666666666666,2.143,,
+16,Quelle plante médicinale est citée contre le paludisme et comment ses dérivés sont-ils utilisés en thérapeutique moderne ?,Artemisia annua; dérivés utilisés dans les ACT (artémisinine et partenaires).,"Artemisia annua, artémisinine, ACT, associations à base d’artémisinine","La plante médicinale citée contre le paludisme est Putranjiva P. roxburghii (Putranjivaceae). Selon [Document 1222], des extraits de ses branches ont été évalués pour leur efficacité anti-paludisme. Les résultats de ces études ont montré une activité antiparasitaire modérée.
+
+En thérapeutique moderne, les recherches sont en cours pour trouver de nouveaux composés anti-paludisme à partir de cette plante, en raison des défis posés par les stratégies de traitement du paludisme en raison de l'émergence de souches résistantes aux médicaments.
+
+En dehors de cette étude, il est également mentionné dans [Document 4092] que l'écorce séchée de baobab est recommandée aux malades du paludisme pour traiter la fièvre qui résulte de la maladie, dans les régions de l'Inde, de Sri Lanka et de l'Ouest des Indes. Cependant, il n'est pas spécifié comment les dérivés de cette plante sont utilisés en thérapeutique moderne.",0.5,0.44906845688819885,0.25,1.847,,
+17,Quels examens confirment une schistosomiase urogénitale et quel traitement proposer ?,Œufs dans les urines (ou biopsie) ± sérologie; traitement par praziquantel.,"œufs dans les urines, praziquantel, diagnostic, schistosomiase urogénitale","Les examens qui confirment une schistosomiase urogénitale comprennent :
+
+1. Examen des urines : la présence de œufs de Schistosoma spp. dans l'urine est le diagnostic le plus fiable.
+2. Biopsie des tissus génitaux : elle peut révéler la présence de larves ou d'œufs de Schistosoma spp.
+3. Examen histologique : il peut révéler des signes inflammatoires ou des lésions typiques de la schistosomiase urogénitale.
+
+Le traitement proposé est généralement une thérapie antiparasitaire, notamment le praziquantel, qui tue les vers adultes et les larves. Le traitement doit être administré par un professionnel de santé qualifié.
+
+[Document 1153] PubMed_40961107 (Pertinence: 22%)
+[Document 4948] 2013_pharmacopee-des-plantes-medicinales-afrique-de-louest (chunk 948) (Pertinence: 10%)",0.25,0.5441155433654785,0.75,3.132,,
+18,Qu’est-ce que la leishmaniose cutanée et quel vecteur est en cause ?,Infection cutanée à Leishmania provoquant des ulcères; transmise par piqûre de phlébotomes (moucherons).,"Leishmania, phlébotome, ulcères cutanés","La leishmaniose cutanée est une forme de leishmaniose qui cause habituellement des ulcères cutanés. C'est une maladie due à un parasite protozoaire du genre Leishmania, transmis par la piqûre de phlébotomes femelles infectées [Document 3].",1.0,0.8150917887687683,1.0,4.445,,
+19,Quelle mesure « One Health » est essentielle pour prévenir l’échinococcose ?,Contrôle/vermicufage des chiens et gestion hygiénique des abats pour interrompre le cycle chien–bétail–humain.,"chiens, vermifuge, abats, One Health, cycle","La mesure « One Health » essentielle pour prévenir l'échinococcose est la gestion des animaux domestiques et sauvages en les traitant régulièrement contre les parasites, notamment les chiens et les chèvres qui sont des hôtes intermédiaires de l'échinococcose. Il est également important de veiller à ce que les humains ne soient pas exposés aux œufs d'Echinococcus via les excréments de ces animaux. Enfin, il est important de disposer d'un système de dépoussiérage efficace pour réduire la contamination des espaces habités par les œufs d'Echinococcus.
+
+[Document 4512] 2013_pharmacopee-des-plantes-medicinales-afrique-de-louest (chunk 512) (Pertinence: 20%)
+... L'échinococcose est une zoonose causée par les espèces d'Echinococcus, qui sont des parasites transmis par les chiens et les chèvres. ...",0.0,0.6717883348464966,0.4,2.815,,
+20,Quels éléments cliniques et paracliniques distinguent la dengue du paludisme en première intention ?,"Dengue : myalgies diffuses, thrombopénie, hémoconcentration; Paludisme : fièvre par accès, frottis/goutte épaisse positifs.","thrombopénie, hémoconcentration, frottis, goutte épaisse, myalgies","Les éléments cliniques et paracliniques qui distinguent la dengue du paludisme en première intention sont les suivants :
+
+1. **Symptômes initiaux** : Les symptômes initiaux de la dengue sont généralement similaires à ceux du paludisme, tels que la fièvre, les maux de tête, les douleurs musculaires et les nausées. Cependant, la fièvre de la dengue est généralement plus élevée et plus brusque que celle du paludisme.
+
+2. **Fièvre récurrente** : La fièvre de la dengue peut être récurrente, c'est-à-dire qu'elle peut augmenter et diminuer plusieurs fois au cours des premiers jours de la maladie. Cela n'est pas le cas du paludisme.
+
+3. **Rash cutané** : Un rash cutané peut apparaître sur le corps pendant la phase de fièvre de la dengue. Ce rash est généralement maculopapuleux (macules et papules) et peut être associé à une éruption de petits points rouges sur les plaies. Ce rash n'est pas un symptôme typique du paludisme.
+
+4. **Hémorragies** : Les hémorragies sont plus fréquentes dans la dengue sévère que dans le paludisme. Elles peuvent prendre la forme de saignements nasaux, de saignements des gencives, de saignements des yeux, de saignements vaginaux ou de saignements digestifs.
+
+5. **Plaquette** : La plaquette est un élément paraclinique qui peut être utilisé pour distinguer la dengue du paludisme. La plaquette est un élément de la graisse sanguine qui est responsable de la coagulation sanguine. Dans la dengue, la plaquette peut être diminuée, ce qui peut entraîner une augmentation du risque d'hémorragies. Cela n'est pas le cas du paludisme.
+
+6. **Test de dépistage** : Les
+
+**Sources consultées:**
+- [1] Dengue et dengue sévère (Pertinence: 45%)
+- [1039] PubMed_41108693 (Pertinence: 42%)
+- [1099] PubMed_40468310 (Pertinence: 36%)
+",0.0,0.6807987689971924,0.0,2.042,,

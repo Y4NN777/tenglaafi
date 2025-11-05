@@ -144,3 +144,4 @@ tmp/
 # Reports
 rapport.md
 reports/
+data/sources_failed.json
