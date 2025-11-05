@@ -12,6 +12,7 @@ async def health_check():
     """Vérifie que le backend et le pipeline RAG fonctionnent."""
     return {"status": "OK", "message": "TengLaafi API est opérationnelle."}
 
+
 @router.post("/query", response_model=QueryResponse)
 async def query_rag(request: QueryRequest):
     """Reçoit une question utilisateur et renvoie une réponse générée via RAG."""

@@ -99,10 +99,14 @@ class MedicalLLM:
                 )
 
         try:
-            from huggingface_hub import InferenceClient
+            import importlib
+            hf_mod = importlib.import_module("huggingface_hub")
+            InferenceClient = getattr(hf_mod, "InferenceClient")
         except Exception as e:
-            logger.error("huggingface_hub non installé: %s", e)
-            raise
+            logger.error("huggingface_hub non installé ou introuvable: %s", e)
+            raise ImportError(
+                "huggingface_hub est requis pour MedicalLLM; installez via `pip install huggingface-hub`"
+            ) from e
 
         repo_id = self.MODELS.get(model_name, self.MODELS["mistral"])
         logger.info("Initialisation LLM (chat): %s", repo_id)

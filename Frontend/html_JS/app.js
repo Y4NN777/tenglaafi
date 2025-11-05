@@ -70,11 +70,67 @@ async function sendMessage() {
         const answer = data.answer || "Je n’ai pas trouvé de réponse précise à cette question.";
         addMessage(answer, "bot");
 
-        if (data.sources && data.sources.length > 0) {
-            data.sources.forEach(src => {
-                addMessage(`Source : ${src?.metadata?.source || src}`, "source");
+//          if (data.sources && data.sources.length > 0) {
+//     data.sources.forEach(src => {
+//         const sourceId = src.id || "N/A";
+//         const sourceTitle = src.title || "Source inconnue";
+//         const similarity = src.similarity ? `${Math.round(src.similarity * 100)}%` : "";
+        
+//         const sourceText = similarity 
+//             ? ` [${sourceId}] ${sourceTitle} `
+//             : ` [${sourceId}] ${sourceTitle}`;
+        
+//         addMessage(sourceText, "source");
+//     });
+// }
+if (data.sources && data.sources.length > 0) {
+            // Création d'un conteneur pour toutes les sources
+            const sourcesContainer = document.createElement("div");
+            sourcesContainer.className = "message source-group";
+            sourcesContainer.innerHTML = "<strong> Sources consultées :</strong>";
+            
+            data.sources.forEach((src, index) => {
+                const sourceId = src.id || "N/A";
+                const sourceTitle = src.title || "Source inconnue";
+                const similarity = src.similarity 
+                    ? Math.round(src.similarity * 100) 
+                    : 0;
+                const sourceUrl = src.url || "";
+                
+                // Création d'un élément pour chaque source
+                const sourceItem = document.createElement("div");
+                sourceItem.className = "source-item";
+                sourceItem.style.cssText = `
+                    margin: 8px 0;
+                    padding: 8px;
+                    background: rgba(255, 255, 255, 0.05);
+                    border-radius: 4px;
+                    font-size: 0.9em;
+                `;
+                
+                // Si l'URL existe et est valide, créer un lien
+                if (sourceUrl && !sourceUrl.includes("data\\raw")) {
+                    sourceItem.innerHTML = `
+                        ${index + 1}. <a href="${sourceUrl}" target="_blank" style="color: #4CAF50; text-decoration: none;">
+                            [${sourceId}] ${sourceTitle}
+                        </a>
+                        <span style="color: #888;"> )</span>
+                    `;
+                } else {
+                    sourceItem.innerHTML = `
+                        ${index + 1}. [${sourceId}] ${sourceTitle}
+                        <span style="color: #888;"> QU)</span>
+                    `;
+                }
+                
+                sourcesContainer.appendChild(sourceItem);
             });
+            
+            chatContainer.appendChild(sourcesContainer);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
+
+// ... (reste du code)
 
     } catch (error) {
         clearInterval(loadingInterval);
