@@ -8,11 +8,11 @@ from routes import router
 import logging.config
 
 
-# Ajouter le répertoire racine 
+# Ajouter le répertoire racine
 root_dir = Path(__file__).resolve().parents[2]
 if str(root_dir) not in sys.path:
     sys.path.append(str(root_dir))
-    
+
 from src.core.config import LOGGING_CONFIG
 
 # Configuration du logging
@@ -34,6 +34,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Middleware pour logger les requêtes
 @app.middleware("http")
 async def log_requests(request, call_next):
@@ -46,6 +47,7 @@ async def log_requests(request, call_next):
         logger.error(f"Erreur serveur: {e}", exc_info=True)
         raise
 
+
 # Inclure les routes API
 app.include_router(router)
 
@@ -56,4 +58,5 @@ app.mount("/", StaticFiles(directory="frontend", html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("src.server.main:app", host="0.0.0.0", port=8000, reload=True)

@@ -1,4 +1,3 @@
-
 """Évaluation complète du pipeline RAG Tenglaafi.
 
 Ce module orchestre l’évaluation automatique du pipeline RAG complet à partir
@@ -157,9 +156,6 @@ Prérequis :
   (avant/après optimisation du pipeline ou changement de modèle).
 """
 
-
-
-
 from __future__ import annotations
 
 import json
@@ -277,6 +273,7 @@ def mean_or_none(vals: List[Optional[float]]) -> Optional[float]:
 def _clamp(v: float, lo: float = 0.0, hi: float = 1.0) -> float:
     return max(lo, min(hi, v))
 
+
 def _to_5(x: Optional[float]) -> Optional[float]:
     if x is None:
         return None
@@ -301,6 +298,7 @@ def _combine_pertinence_5(
     else:
         base = _clamp(0.6 * semantic_similarity + 0.4 * answer_completeness)
     return round(base * 5.0, 2)
+
 
 def run_evaluation(
     questions_path: Path,
@@ -345,7 +343,7 @@ def run_evaluation(
             expected_keywords=expected_keywords,
         )
         metrics["response_time"] = dt
-        
+
         rp = metrics.get("retrieval_precision")
         sim = metrics.get("semantic_similarity")
         comp = metrics.get("answer_completeness")
@@ -369,15 +367,23 @@ def run_evaluation(
 
     # Agrégations
     summary = {
-            "retrieval_precision_avg": mean_or_none([r["metrics"].get("retrieval_precision") for r in results]),
-            "retrieval_precision_5_avg": mean_or_none([r["metrics"].get("retrieval_precision_5") for r in results]),
-            "answer_completeness_avg": mean_or_none([r["metrics"].get("answer_completeness") for r in results]),
-            "semantic_similarity_avg": mean_or_none([r["metrics"].get("semantic_similarity") for r in results]),
-            "pertinence_5_avg": mean_or_none([r["metrics"].get("pertinence_5") for r in results]),
-            "response_time_avg_sec": mean_or_none([r["metrics"].get("response_time") for r in results]),
-            "human_rating_avg_5": mean_or_none([r["metrics"].get("human_rating") for r in results]),
-            "num_questions": len(results),
-        }
+        "retrieval_precision_avg": mean_or_none(
+            [r["metrics"].get("retrieval_precision") for r in results]
+        ),
+        "retrieval_precision_5_avg": mean_or_none(
+            [r["metrics"].get("retrieval_precision_5") for r in results]
+        ),
+        "answer_completeness_avg": mean_or_none(
+            [r["metrics"].get("answer_completeness") for r in results]
+        ),
+        "semantic_similarity_avg": mean_or_none(
+            [r["metrics"].get("semantic_similarity") for r in results]
+        ),
+        "pertinence_5_avg": mean_or_none([r["metrics"].get("pertinence_5") for r in results]),
+        "response_time_avg_sec": mean_or_none([r["metrics"].get("response_time") for r in results]),
+        "human_rating_avg_5": mean_or_none([r["metrics"].get("human_rating") for r in results]),
+        "num_questions": len(results),
+    }
 
     payload = {"summary": summary, "results": results}
 
@@ -394,7 +400,7 @@ def run_evaluation(
         with open(out_csv, "w", encoding="utf-8", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(
- [
+                [
                     "id",
                     "question",
                     "expected_answer",
@@ -467,5 +473,5 @@ if __name__ == "__main__":
         print(f"Note humaine moy. (/5)   : {summary['human_rating_avg_5']}")
     if summary.get("response_time_avg_sec") is not None:
         print(f"Temps de réponse moy. (s): {summary['response_time_avg_sec']}")
-        
+
     print("\nExport : evaluation_results.json + evaluation_results.csv")

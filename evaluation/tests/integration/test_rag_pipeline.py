@@ -1,6 +1,7 @@
 """
-Tests d'intégration du pipeline RAG complet - 
+Tests d'intégration du pipeline RAG complet -
 """
+
 import pytest
 import time
 
@@ -10,13 +11,13 @@ from src import rag_pipeline
 @pytest.mark.integration
 class TestRAGPipelineIntegration:
     """Tests d'intégration du pipeline RAG"""
-    
+
     def test_full_pipeline_initialization(self, rag_pipeline):
         """Test initialisation complète du pipeline"""
         assert rag_pipeline.docs is not None
         assert len(rag_pipeline.docs) > 0
         assert rag_pipeline.vector_store.count_documents() > 0
-    
+
     @pytest.mark.slow
     @pytest.mark.requires_hf_token
     def test_end_to_end_query(self, rag_pipeline):
@@ -60,7 +61,6 @@ class TestRAGPipelineIntegration:
         ans, src = rag_pipeline.query("", k=3, use_cache=False)
         assert ans.startswith("Question vide.")
         assert src == []
-
 
         results = rag_pipeline.batch_query([""], k=3, return_sources=True, use_cache=False)
         assert len(results) == 1

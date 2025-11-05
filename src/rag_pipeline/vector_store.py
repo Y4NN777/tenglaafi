@@ -104,32 +104,28 @@ logger = logging.getLogger(__name__)
 
 class ChromaVectorStore:
     """Gestionnaire de base vectorielle ChromaDB"""
-    
+
     def __init__(
-        self, 
-        persist_dir: str = CHROMA_PERSIST_DIR,
-        collection_name: str = CHROMA_COLLECTION_NAME
+        self, persist_dir: str = CHROMA_PERSIST_DIR, collection_name: str = CHROMA_COLLECTION_NAME
     ):
         self.persist_dir = Path(persist_dir)
         self.persist_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # API MODERNE ChromaDB
         try:
-            self.client = chromadb.PersistentClient(
-                path=str(self.persist_dir)
-            )
+            self.client = chromadb.PersistentClient(path=str(self.persist_dir))
             logger.info(f"  ChromaDB initialisé: {self.persist_dir}")
         except Exception as e:
             logger.error(f"  Erreur connexion ChromaDB: {e}")
             raise
-        
+
         # Création/récupération collection avec retry
         max_retries = 3
         for attempt in range(max_retries):
             try:
                 self.collection = self.client.get_or_create_collection(
                     name=collection_name,
-                    metadata={"description": "Medical tropical diseases knowledge base"}
+                    metadata={"description": "Medical tropical diseases knowledge base"},
                 )
                 logger.info(f"  Collection '{collection_name}' prête")
                 break
@@ -137,20 +133,18 @@ class ChromaVectorStore:
                 if attempt < max_retries - 1:
                     logger.warning(f"  Tentative {attempt+1}/{max_retries} échouée, retry...")
                     import time
+
                     time.sleep(2)
                 else:
                     logger.error(f"  Échec création collection: {e}")
                     raise
 
     def index_documents(
-        self,
-        docs: List[Dict],
-        embeddings: List[List[float]],
-        batch_size: int = 100
+        self, docs: List[Dict], embeddings: List[List[float]], batch_size: int = 100
     ) -> None:
         """
         Indexe des documents avec leurs embeddings
-        
+
         Args:
             docs: Liste [{id, title, text, url}, ...]
             embeddings: Embeddings correspondants
@@ -158,11 +152,11 @@ class ChromaVectorStore:
         """
         total = len(docs)
         logger.info(f"  Indexation de {total} documents...")
-        
+
         for i in range(0, total, batch_size):
-            batch_docs = docs[i:i+batch_size]
-            batch_embeddings = embeddings[i:i+batch_size]
-            
+            batch_docs = docs[i : i + batch_size]
+            batch_embeddings = embeddings[i : i + batch_size]
+
             try:
                 ids = [str(doc["id"]) for doc in batch_docs]
                 documents = [doc["text"] for doc in batch_docs]
@@ -171,76 +165,65 @@ class ChromaVectorStore:
                         "title": doc["title"],
                         "url": doc.get("url", ""),
                         "length": doc.get("length", 0),
-                        "source": doc.get("source", "Unknown")
-                    } 
+                        "source": doc.get("source", "Unknown"),
+                    }
                     for doc in batch_docs
                 ]
-                
+
                 # Ajout avec gestion d'erreur
                 self.collection.add(
-                    ids=ids,
-                    documents=documents,
-                    embeddings=batch_embeddings,
-                    metadatas=metadatas
+                    ids=ids, documents=documents, embeddings=batch_embeddings, metadatas=metadatas
                 )
-                
+
                 logger.info(f"  Indexé {min(i+batch_size, total)}/{total}")
-                
+
             except Exception as e:
                 logger.error(f"  Erreur batch {i}-{i+batch_size}: {e}")
                 # Continue avec le batch suivant
                 continue
-        
+
         logger.info("  Indexation terminée")
-    
+
     def search(
-        self,
-        query_embedding: List[float],
-        k: int = 5,
-        filter_metadata: Optional[Dict] = None
+        self, query_embedding: List[float], k: int = 5, filter_metadata: Optional[Dict] = None
     ) -> Dict:
         """
         Recherche les documents les plus similaires
-        
+
         Returns:
             {ids, documents, metadatas, distances}
         """
         try:
             results = self.collection.query(
-                query_embeddings=[query_embedding],
-                n_results=k,
-                where=filter_metadata
+                query_embeddings=[query_embedding], n_results=k, where=filter_metadata
             )
-            
+
             return {
                 "ids": [int(id) for id in results["ids"][0]],
                 "documents": results["documents"][0],
                 "metadatas": results["metadatas"][0],
-                "distances": results["distances"][0]
+                "distances": results["distances"][0],
             }
         except Exception as e:
             logger.error(f"  Erreur recherche: {e}")
             return {"ids": [], "documents": [], "metadatas": [], "distances": []}
-    
+
     def get_document_by_id(self, doc_id: int) -> Optional[Dict]:
         """Récupère un document par son ID"""
         try:
-            result = self.collection.get(
-                ids=[str(doc_id)],
-                include=["documents", "metadatas"]
-            )
-            
+            result = self.collection.get(ids=[str(doc_id)], include=["documents", "metadatas"])
+
             if result["ids"]:
                 return {
                     "id": int(result["ids"][0]),
                     "text": result["documents"][0],
-                    "metadata": result["metadatas"][0]
+                    "metadata": result["metadatas"][0],
                 }
         except Exception as e:
             logger.error(f"  Erreur récupération document {doc_id}: {e}")
-        
+
         return None
-    
+
     def count_documents(self) -> int:
         """Retourne le nombre de documents indexés"""
         try:
@@ -258,7 +241,7 @@ class ChromaVectorStore:
         except Exception as e:
             logger.error(f"  Health check failed: {e}")
             return False
-    
+
     def delete_collection(self):
         """Supprime la collection (pour réindexation)"""
         try:
@@ -266,14 +249,12 @@ class ChromaVectorStore:
             logger.warning(f"  Collection '{self.collection.name}' supprimée")
         except Exception as e:
             logger.error(f"  Erreur suppression collection: {e}")
-    
+
     def reset(self):
         """Réinitialise complètement la base"""
         try:
             self.delete_collection()
-            self.collection = self.client.get_or_create_collection(
-                name=CHROMA_COLLECTION_NAME
-            )
+            self.collection = self.client.get_or_create_collection(name=CHROMA_COLLECTION_NAME)
             logger.info("  Base vectorielle réinitialisée")
         except Exception as e:
             logger.error(f"  Erreur reset: {e}")

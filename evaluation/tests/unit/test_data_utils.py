@@ -87,6 +87,7 @@ from src.rag_pipeline.data_utils import (
 # WebScraper
 # =========================
 
+
 class TestWebScraper:
     """Tests pour WebScraper"""
 
@@ -118,11 +119,14 @@ class TestWebScraper:
 
     def test_fetch_url_detects_pdf(self, monkeypatch):
         """Simule réponse HTTP PDF via Content-Type"""
+
         class FakeResp:
             status_code = 200
             headers = {"Content-Type": "application/pdf"}
             content = b"%PDF-1.7"
-            def raise_for_status(self): pass
+
+            def raise_for_status(self):
+                pass
 
         monkeypatch.setattr(
             "src.rag_pipeline.data_utils.requests.get",
@@ -150,7 +154,9 @@ class TestWebScraper:
             status_code = 200
             headers = {"Content-Type": "text/html; charset=utf-8"}
             content = html
-            def raise_for_status(self): pass
+
+            def raise_for_status(self):
+                pass
 
         monkeypatch.setattr(
             "src.rag_pipeline.data_utils.requests.get",
@@ -172,7 +178,9 @@ class TestWebScraper:
             status_code = 200
             headers = {"Content-Type": "text/html"}
             content = html
-            def raise_for_status(self): pass
+
+            def raise_for_status(self):
+                pass
 
         monkeypatch.setattr(
             "src.rag_pipeline.data_utils.requests.get",
@@ -215,12 +223,15 @@ class TestWebScraper:
 # PubMedAPI
 # =========================
 
+
 class TestPubMedAPI:
     """Tests pour PubMedAPI (mock HTTP)"""
 
     def test_search_articles_returns_pmids(self, monkeypatch):
         class FakeResp:
-            def raise_for_status(self): pass
+            def raise_for_status(self):
+                pass
+
             def json(self):
                 return {"esearchresult": {"idlist": ["1", "2", "3"]}}
 
@@ -262,9 +273,12 @@ class TestPubMedAPI:
         """
 
         class FakeResp:
-            def raise_for_status(self): pass
+            def raise_for_status(self):
+                pass
+
             @property
-            def content(self): return xml
+            def content(self):
+                return xml
 
         monkeypatch.setattr(
             "src.rag_pipeline.data_utils.requests.get",
@@ -293,9 +307,12 @@ class TestPubMedAPI:
         """
 
         class FakeResp:
-            def raise_for_status(self): pass
+            def raise_for_status(self):
+                pass
+
             @property
-            def content(self): return xml
+            def content(self):
+                return xml
 
         monkeypatch.setattr(
             "src.rag_pipeline.data_utils.requests.get",
@@ -322,6 +339,7 @@ class TestPubMedAPI:
 # MedicalTextSplitter
 # =========================
 
+
 class TestMedicalTextSplitter:
     """Tests pour le splitter médical"""
 
@@ -339,14 +357,19 @@ class TestMedicalTextSplitter:
 # PDFLoader
 # =========================
 
+
 class TestPDFLoader:
     """Tests pour PDFLoader (mock DirectoryLoader et Splitter)"""
 
     def test_load_pdfs_from_empty_directory(self, monkeypatch, tmp_path):
         """Mock DirectoryLoader.load -> []"""
+
         class FakeDL:
-            def __init__(self, *a, **k): pass
-            def load(self): return []
+            def __init__(self, *a, **k):
+                pass
+
+            def load(self):
+                return []
 
         monkeypatch.setattr(
             "src.rag_pipeline.data_utils.DirectoryLoader",
@@ -358,12 +381,16 @@ class TestPDFLoader:
 
     def test_load_pdfs_from_nonexistent_directory(self, monkeypatch):
         """Mock DirectoryLoader.__init__ qui lève FileNotFoundError"""
+
         def raise_not_found(*a, **k):
             raise FileNotFoundError("dir not found")
 
         class FakeDL:
-            def __init__(self, *a, **k): raise_not_found()
-            def load(self): return []
+            def __init__(self, *a, **k):
+                raise_not_found()
+
+            def load(self):
+                return []
 
         monkeypatch.setattr(
             "src.rag_pipeline.data_utils.DirectoryLoader",
@@ -375,13 +402,16 @@ class TestPDFLoader:
 
     def test_load_pdfs_happy_path_with_chunks(self, monkeypatch, tmp_path):
         """Mock DirectoryLoader + Splitter pour produire 2 chunks"""
+
         class FakeDoc:
             def __init__(self, src: str, content: str):
                 self.metadata = {"source": src}
                 self.page_content = content
 
         class FakeDL:
-            def __init__(self, *a, **k): pass
+            def __init__(self, *a, **k):
+                pass
+
             def load(self):
                 return [
                     FakeDoc(str(tmp_path / "a.pdf"), "page1 content"),
@@ -389,7 +419,9 @@ class TestPDFLoader:
                 ]
 
         class FakeSplitter:
-            def __init__(self, *a, **k): pass
+            def __init__(self, *a, **k):
+                pass
+
             def split_medical_text(self, text: str) -> List[str]:
                 # renvoie deux chunks déterministes
                 return ["chunk-one", "chunk-two"]

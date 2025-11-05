@@ -5,11 +5,11 @@ from models import QueryRequest, QueryResponse
 import sys
 from pathlib import Path
 
-# Ajouter le répertoire racine 
+# Ajouter le répertoire racine
 root_dir = Path(__file__).resolve().parents[2]
 if str(root_dir) not in sys.path:
     sys.path.append(str(root_dir))
-    
+
 from src.rag_pipeline.rag import RAGPipeline
 
 router = APIRouter()
@@ -34,12 +34,7 @@ async def query_rag(request: QueryRequest):
 
     try:
         # rag.query retourne un tuple (answer, sources)
-        answer, sources = rag.query(
-            question,
-            top_k=request.top_k,
-            return_sources=True
-        )
+        answer, sources = rag.query(question, top_k=request.top_k, return_sources=True)
         return QueryResponse(answer=answer, sources=sources)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-

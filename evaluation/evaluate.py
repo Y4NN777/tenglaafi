@@ -1,4 +1,3 @@
-
 """Évaluation complète du pipeline RAG Tenglaafi.
 
 Ce module orchestre l’évaluation automatique du pipeline RAG complet à partir
@@ -156,9 +155,6 @@ Prérequis :
 - Les résultats peuvent être directement utilisés pour comparer plusieurs runs
   (avant/après optimisation du pipeline ou changement de modèle).
 """
-
-
-
 
 from __future__ import annotations
 
@@ -333,9 +329,15 @@ def run_evaluation(
 
     # Agrégations
     summary = {
-        "retrieval_precision_avg": mean_or_none([r["metrics"].get("retrieval_precision") for r in results]),
-        "answer_completeness_avg": mean_or_none([r["metrics"].get("answer_completeness") for r in results]),
-        "semantic_similarity_avg": mean_or_none([r["metrics"].get("semantic_similarity") for r in results]),
+        "retrieval_precision_avg": mean_or_none(
+            [r["metrics"].get("retrieval_precision") for r in results]
+        ),
+        "answer_completeness_avg": mean_or_none(
+            [r["metrics"].get("answer_completeness") for r in results]
+        ),
+        "semantic_similarity_avg": mean_or_none(
+            [r["metrics"].get("semantic_similarity") for r in results]
+        ),
         "response_time_avg_sec": mean_or_none([r["metrics"].get("response_time") for r in results]),
         "human_rating_avg_5": mean_or_none([r["metrics"].get("human_rating") for r in results]),
         "num_questions": len(results),

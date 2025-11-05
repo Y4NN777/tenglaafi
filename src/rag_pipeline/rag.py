@@ -71,7 +71,7 @@ from .embeddings import get_embedding_manager
 from .vector_store import ChromaVectorStore
 from .llm import get_llm_client
 from ..core.config import DATA_DIR, CHROMA_PERSIST_DIR, TOP_K_DOCUMENTS
-from src.core.config import EMBEDDING_MODEL 
+from src.core.config import EMBEDDING_MODEL
 from src.core.config import LOGGING_CONFIG
 
 logging.config.dictConfig(LOGGING_CONFIG)
@@ -80,34 +80,34 @@ logger = logging.getLogger(__name__)
 
 class RAGPipeline:
     """Pipeline RAG complet pour Tenglaafi"""
-    
+
     def __init__(
         self,
         corpus_path: str = None,
         persist_dir: str = CHROMA_PERSIST_DIR,
-        force_reindex: bool = False
+        force_reindex: bool = False,
     ):
         # Cache simple en mémoire
         self._query_cache = {}
         self._cache_max_size = 100
-        
+
         # Chemins
         self.corpus_path = Path(corpus_path or DATA_DIR / "corpus.json")
-        
+
         # Composants
         self.embedding_manager = get_embedding_manager()
         self.vector_store = ChromaVectorStore(persist_dir=persist_dir)
         self.llm = get_llm_client()
-        
+
         # Chargement du corpus
         self.docs = self._load_corpus()
         logger.info(f"  Corpus chargé: {len(self.docs)} documents")
 
         # Lecture état existant
         existing = self.vector_store.count_documents()
-        meta = (getattr(self.vector_store.collection, "metadata", None) or {})
-        same_model  = (meta.get("embedding_model") == EMBEDDING_MODEL)
-        same_corpus = (meta.get("corpus_hash") == self._hash_corpus())
+        meta = getattr(self.vector_store.collection, "metadata", None) or {}
+        same_model = meta.get("embedding_model") == EMBEDDING_MODEL
+        same_corpus = meta.get("corpus_hash") == self._hash_corpus()
 
         # Décision
         if force_reindex or existing == 0 or not (same_model and same_corpus):
@@ -116,79 +116,71 @@ class RAGPipeline:
             # maj métadonnées collection après succès
             try:
                 if hasattr(self.vector_store.collection, "modify"):
-                    self.vector_store.collection.modify(metadata={
-                        **meta,
-                        "embedding_model": EMBEDDING_MODEL,
-                        "corpus_hash": self._hash_corpus(),
-                    })
+                    self.vector_store.collection.modify(
+                        metadata={
+                            **meta,
+                            "embedding_model": EMBEDDING_MODEL,
+                            "corpus_hash": self._hash_corpus(),
+                        }
+                    )
                 else:
                     logger.warning("  Méthode 'modify' non supportée par cette version de ChromaDB")
             except Exception as e:
                 logger.warning(f"  Impossible de mettre à jour les métadonnées collection: {e}")
-
-            
 
     def _hash_corpus(self) -> str:
         h = hashlib.sha256()
         for d in self.docs:
             # choisis un ordre stable
             h.update(str(d.get("id")).encode())
-            h.update((d.get("title","")).encode())
-            h.update((d.get("text","")).encode())
+            h.update((d.get("title", "")).encode())
+            h.update((d.get("text", "")).encode())
         return h.hexdigest()
 
-    
     def _load_corpus(self) -> List[Dict]:
         """Charge le corpus JSON"""
         if not self.corpus_path.exists():
             raise FileNotFoundError(f"Corpus introuvable: {self.corpus_path}")
-        
+
         try:
             with open(self.corpus_path, encoding="utf-8") as f:
                 return json.load(f)
         except Exception as e:
             logger.error(f"  Erreur chargement corpus: {e}")
             raise
-    
+
     def build_index(self) -> None:
         """Construit l'index vectoriel complet"""
         logger.info("  Construction de l'index vectoriel...")
-        
+
         # Extraction des textes
         texts = [doc["text"] for doc in self.docs]
-        
+
         # Génération des embeddings
         logger.info("  Génération des embeddings...")
-        embeddings = self.embedding_manager.embed_texts(
-            texts, 
-            batch_size=32,
-            show_progress=True
-        )
-        
+        embeddings = self.embedding_manager.embed_texts(texts, batch_size=32, show_progress=True)
+
         # Indexation dans Chroma
         logger.info("  Indexation dans ChromaDB...")
-        self.vector_store.index_documents(
-            docs=self.docs,
-            embeddings=embeddings.tolist()
-        )
-        
+        self.vector_store.index_documents(docs=self.docs, embeddings=embeddings.tolist())
+
         logger.info("  Index construit avec succès")
-    
+
     def query(
-        self, 
-        question: str, 
+        self,
+        question: str,
         k: Optional[int] = None,
         top_k: Optional[int] = None,
         return_sources: bool = True,
-        use_cache: bool = True
+        use_cache: bool = True,
     ) -> Tuple[str, Optional[List[Dict]]]:
-        
-     if top_k is not None:
-        k = top_k
-     if k is None:
-        k = TOP_K_DOCUMENTS
 
-        """
+        if top_k is not None:
+            k = top_k
+        if k is None:
+            k = TOP_K_DOCUMENTS
+
+            """
         Traite une question et retourne la réponse RAG
         
         Args:
@@ -200,200 +192,197 @@ class RAGPipeline:
         Returns:
             Tuple (réponse, documents_sources)
         """
-        
-     if not (question or "").strip():
-        empty_result = ("Question vide.", []) if return_sources else ("Question vide.", None)
-        return empty_result
-    
-    # Génération clé de cache
-     cache_key = hashlib.md5(f"{question.lower().strip()}_{k}".encode()).hexdigest()
 
-     if use_cache and cache_key in self._query_cache:
-        logger.info(" Cache hit")
-        return self._query_cache[cache_key]
+        if not (question or "").strip():
+            empty_result = ("Question vide.", []) if return_sources else ("Question vide.", None)
+            return empty_result
 
-     try:
-        # 1. Embedding de la question
-        logger.debug(f" Question: {question}")
-        try:
-            query_embedding = self.embedding_manager.embed_query(question)
-        except Exception as e:
-            logger.error(f"Erreur lors de l'embedding: {e}")
-            error_msg = "Erreur lors du traitement de la question."
-            error_result = (error_msg, []) if return_sources else (error_msg, None)
-            return error_result
-        
-        # 2. Recherche vectorielle
-        try:
-            results = self.vector_store.search(
-                query_embedding=query_embedding.tolist(),
-                k=k
-            )
-        except Exception as e:
-            logger.error(f"Erreur lors de la recherche vectorielle: {e}")
-            error_msg = "Erreur lors de la recherche de documents."
-            error_result = (error_msg, []) if return_sources else (error_msg, None)
-            return error_result
-        
-        # 3. Récupération des documents complets
-        retrieved_docs = []
-        try:
-            for doc_id, metadata, distance in zip(
-                results["ids"],
-                results["metadatas"],
-                results["distances"]
-            ):
-                doc = next((d for d in self.docs if d["id"] == doc_id), None)
-                if doc:
-                    retrieved_docs.append({
-                        "id": doc_id,
-                        "title": doc["title"],
-                        "text": doc["text"],
-                        "url": doc.get("url", ""),
-                        "similarity": 1 - distance  # Distance -> Similarité
-                    })
-        except Exception as e:
-            logger.error(f"Erreur lors de la récupération des documents: {e}")
-            error_msg = "Erreur lors de la récupération des documents."
-            error_result = (error_msg, []) if return_sources else (error_msg, None)
-            return error_result
-        
-        # Vérification qu'on a des documents
-        if not retrieved_docs:
-            logger.warning("Aucun document pertinent trouvé")
-            answer = "Désolé, je n'ai pas trouvé d'informations pertinentes pour répondre à votre question."
-            no_docs_result = (answer, []) if return_sources else (answer, None)
-            return no_docs_result
-        
-        # 4. Construction du contexte
-        try:
-            context = self._build_context(retrieved_docs)
-        except Exception as e:
-            logger.error(f"Erreur lors de la construction du contexte: {e}")
-            error_msg = "Erreur lors de la préparation du contexte."
-            error_result = (error_msg, retrieved_docs if return_sources else None)
-            return error_result
-        
-        # 5. Génération de la réponse
-        answer = None
-        try:
-            raw_answer = self.llm.generate_answer(context, question)
-            # Nettoyer la réponse immédiatement pour éviter les réponses vides (espaces)
-            answer = raw_answer.strip() if raw_answer else ""
-            logger.info(f"Réponse LLM générée: {len(answer)} caractères (après nettoyage)")
-        except Exception as e:
-            logger.error(f"Erreur lors de la génération LLM: {e}", exc_info=True)
-            answer = None
-        
-        # 6. Post-traitement de la réponse
-        try:
-            answer = self._enhance_answer(answer, retrieved_docs)
-        except Exception as e:
-            logger.error(f"Erreur lors de l'amélioration de la réponse: {e}")
-            if not answer:
-                answer = "Une erreur s'est produite lors de la génération de la réponse."
+        # Génération clé de cache
+        cache_key = hashlib.md5(f"{question.lower().strip()}_{k}".encode()).hexdigest()
 
-        # Construction du résultat final
-        result = (answer, retrieved_docs) if return_sources else (answer, None)
-        
-        # Mise en cache
-        if use_cache:
+        if use_cache and cache_key in self._query_cache:
+            logger.info(" Cache hit")
+            return self._query_cache[cache_key]
+
+        try:
+            # 1. Embedding de la question
+            logger.debug(f" Question: {question}")
             try:
-                if len(self._query_cache) >= self._cache_max_size:
-                    # Supprimer l'entrée la plus ancienne (FIFO simple)
-                    oldest_key = next(iter(self._query_cache))
-                    del self._query_cache[oldest_key]
-                
-                self._query_cache[cache_key] = result
-                logger.debug(f" Cached query (total: {len(self._query_cache)})")
+                query_embedding = self.embedding_manager.embed_query(question)
             except Exception as e:
-                logger.warning(f"Erreur lors de la mise en cache: {e}")
-        
-        return result
-        
-     except Exception as e:
-        # Catch-all pour toute erreur non prévue
-        logger.error(f"Erreur critique dans query(): {e}", exc_info=True)
-        error_msg = f"Une erreur critique s'est produite: {str(e)}"
-        error_result = (error_msg, []) if return_sources else (error_msg, None)
-        return error_result
-    
+                logger.error(f"Erreur lors de l'embedding: {e}")
+                error_msg = "Erreur lors du traitement de la question."
+                error_result = (error_msg, []) if return_sources else (error_msg, None)
+                return error_result
+
+            # 2. Recherche vectorielle
+            try:
+                results = self.vector_store.search(query_embedding=query_embedding.tolist(), k=k)
+            except Exception as e:
+                logger.error(f"Erreur lors de la recherche vectorielle: {e}")
+                error_msg = "Erreur lors de la recherche de documents."
+                error_result = (error_msg, []) if return_sources else (error_msg, None)
+                return error_result
+
+            # 3. Récupération des documents complets
+            retrieved_docs = []
+            try:
+                for doc_id, metadata, distance in zip(
+                    results["ids"], results["metadatas"], results["distances"]
+                ):
+                    doc = next((d for d in self.docs if d["id"] == doc_id), None)
+                    if doc:
+                        retrieved_docs.append(
+                            {
+                                "id": doc_id,
+                                "title": doc["title"],
+                                "text": doc["text"],
+                                "url": doc.get("url", ""),
+                                "similarity": 1 - distance,  # Distance -> Similarité
+                            }
+                        )
+            except Exception as e:
+                logger.error(f"Erreur lors de la récupération des documents: {e}")
+                error_msg = "Erreur lors de la récupération des documents."
+                error_result = (error_msg, []) if return_sources else (error_msg, None)
+                return error_result
+
+            # Vérification qu'on a des documents
+            if not retrieved_docs:
+                logger.warning("Aucun document pertinent trouvé")
+                answer = "Désolé, je n'ai pas trouvé d'informations pertinentes pour répondre à votre question."
+                no_docs_result = (answer, []) if return_sources else (answer, None)
+                return no_docs_result
+
+            # 4. Construction du contexte
+            try:
+                context = self._build_context(retrieved_docs)
+            except Exception as e:
+                logger.error(f"Erreur lors de la construction du contexte: {e}")
+                error_msg = "Erreur lors de la préparation du contexte."
+                error_result = (error_msg, retrieved_docs if return_sources else None)
+                return error_result
+
+            # 5. Génération de la réponse
+            answer = None
+            try:
+                raw_answer = self.llm.generate_answer(context, question)
+                # Nettoyer la réponse immédiatement pour éviter les réponses vides (espaces)
+                answer = raw_answer.strip() if raw_answer else ""
+                logger.info(f"Réponse LLM générée: {len(answer)} caractères (après nettoyage)")
+            except Exception as e:
+                logger.error(f"Erreur lors de la génération LLM: {e}", exc_info=True)
+                answer = None
+
+            # 6. Post-traitement de la réponse
+            try:
+                answer = self._enhance_answer(answer, retrieved_docs)
+            except Exception as e:
+                logger.error(f"Erreur lors de l'amélioration de la réponse: {e}")
+                if not answer:
+                    answer = "Une erreur s'est produite lors de la génération de la réponse."
+
+            # Construction du résultat final
+            result = (answer, retrieved_docs) if return_sources else (answer, None)
+
+            # Mise en cache
+            if use_cache:
+                try:
+                    if len(self._query_cache) >= self._cache_max_size:
+                        # Supprimer l'entrée la plus ancienne (FIFO simple)
+                        oldest_key = next(iter(self._query_cache))
+                        del self._query_cache[oldest_key]
+
+                    self._query_cache[cache_key] = result
+                    logger.debug(f" Cached query (total: {len(self._query_cache)})")
+                except Exception as e:
+                    logger.warning(f"Erreur lors de la mise en cache: {e}")
+
+            return result
+
+        except Exception as e:
+            # Catch-all pour toute erreur non prévue
+            logger.error(f"Erreur critique dans query(): {e}", exc_info=True)
+            error_msg = f"Une erreur critique s'est produite: {str(e)}"
+            error_result = (error_msg, []) if return_sources else (error_msg, None)
+            return error_result
+
     def clear_cache(self):
         """Vide le cache de requêtes"""
         self._query_cache.clear()
         logger.info(" Cache cleared")
-    
+
     def _build_context(self, docs: List[Dict], max_length: int = 3000) -> str:
         """
         Construit le contexte à partir des documents récupérés
-        
+
         Args:
             docs: Documents récupérés
             max_length: Longueur maximale du contexte (caractères)
-        
+
         Returns:
             Contexte formaté
         """
         context_parts = []
         current_length = 0
-        
+
         for doc in docs:
             # Format: [ID] Titre (Similarité: XX%) : Extrait
-            doc_text = str(doc.get("text", ""))[:800]# Limite par document
+            doc_text = str(doc.get("text", ""))[:800]  # Limite par document
             similarity_pct = int(doc["similarity"] * 100)
-            
+
             part = (
                 f"[Document {doc['id']}] {doc['title']} "
                 f"(Pertinence: {similarity_pct}%)\n{doc_text}\n"
             )
-            
+
             if current_length + len(part) > max_length:
                 break
-            
+
             context_parts.append(part)
             current_length += len(part)
-        
+
         return "\n---\n".join(context_parts)
-    
+
     def _enhance_answer(self, answer: str, sources: List[Dict]) -> str:
         """
         Améliore la réponse en ajoutant des références
-        
+
         Args:
             answer: Réponse brute du LLM (peut être None)
             sources: Documents sources utilisés
-        
+
         Returns:
             Réponse améliorée - JAMAIS None
         """
-    
-       # Gestion explicite du cas None ou vide
+
+        # Gestion explicite du cas None ou vide
         if answer is None or not str(answer).strip():
-         answer = (
-            "Je n'ai pas pu générer une réponse appropriée à partir du contexte fourni. "
-            "Cependant, j'ai trouvé des documents pertinents que vous pouvez consulter."
-        )
+            answer = (
+                "Je n'ai pas pu générer une réponse appropriée à partir du contexte fourni. "
+                "Cependant, j'ai trouvé des documents pertinents que vous pouvez consulter."
+            )
         logger.warning("LLM a retourné une réponse vide ou None")
-    
+
         # S'assurer que answer est une chaîne non vide
         answer = str(answer).strip()
-        
+
         # Si toujours vide après conversion
         if not answer:
             answer = "Réponse indisponible."
-        
-    # Vérification de citations existantes (protection contre erreur)
+
+        # Vérification de citations existantes (protection contre erreur)
         has_citations = False
         try:
             if sources and isinstance(sources, list):
                 has_citations = any(
-                    f"[Document {doc.get('id', '')}]" in answer 
-                    for doc in sources 
+                    f"[Document {doc.get('id', '')}]" in answer
+                    for doc in sources
                     if isinstance(doc, dict)
                 )
         except Exception as e:
             logger.warning(f"Erreur lors de la vérification des citations: {e}")
-        
+
         # Ajout des sources si nécessaire
         # if not has_citations and sources and isinstance(sources, list):
         #     try:
@@ -406,9 +395,9 @@ class RAGPipeline:
         #                 answer += f"- [{doc_id}] {doc_title} \n"
         #     except Exception as e:
         #         logger.warning(f"Erreur lors de l'ajout des sources: {e}")
-    
+
         return answer
-    
+
     def batch_query(
         self,
         questions: List[str],
@@ -449,39 +438,38 @@ class RAGPipeline:
                 answer = f"Erreur lors du traitement de la question: {e}"
                 sources = [] if return_sources else None
 
-            results.append({
-                "question": q,
-                "answer": answer,
-                "sources": sources,
-            })
+            results.append(
+                {
+                    "question": q,
+                    "answer": answer,
+                    "sources": sources,
+                }
+            )
 
         return results
 
-    
     def get_similar_questions(self, question: str, k: int = 5) -> List[str]:
         """
         Trouve des questions similaires dans le corpus
-        
+
         Args:
             question: Question de référence
             k: Nombre de suggestions
-        
+
         Returns:
             Liste de titres de documents similaires
         """
         query_embedding = self.embedding_manager.embed_query(question)
         results = self.vector_store.search(query_embedding.tolist(), k=k)
-        
-        suggestions = [
-            f"En savoir plus sur: {meta['title']}"
-            for meta in results["metadatas"]
-        ]
-        
+
+        suggestions = [f"En savoir plus sur: {meta['title']}" for meta in results["metadatas"]]
+
         return suggestions
 
 
 # Singleton global
 _rag_pipeline = None
+
 
 def get_rag_pipeline(force_reload: bool = False) -> RAGPipeline:
     """Récupère l'instance singleton du pipeline RAG"""

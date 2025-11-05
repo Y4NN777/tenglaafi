@@ -13,27 +13,22 @@ LOG_FILE = BASE_DIR / "app.log"
 
 # Logging configuration
 LOGGING_CONFIG = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'standard': {
-            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        },
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {"format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"},
     },
-    'handlers': {
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': str(LOG_FILE),
-            'formatter': 'standard'
+    "handlers": {
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": str(LOG_FILE),
+            "formatter": "standard",
         },
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'standard'
-        }
+        "console": {"class": "logging.StreamHandler", "formatter": "standard"},
     },
-    'root': {
-        'handlers': ['file', 'console'],
-        'level': 'INFO',
+    "root": {
+        "handlers": ["file", "console"],
+        "level": "INFO",
     },
 }
 
@@ -67,4 +62,3 @@ API_RELOAD = True
 if not HF_TOKEN:
     print("  HF_TOKEN manquant dans .env")
     print("Obtenez-le gratuitement sur https://huggingface.co/settings/tokens")
-    

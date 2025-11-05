@@ -89,7 +89,7 @@ Exemple minimal
 >>> sorted(scores.keys())
 ['answer_completeness', 'answer_length', 'avg_source_similarity',
  'num_sources', 'retrieval_precision', 'semantic_similarity']
- 
+
 Auteur : Y4NN777
 
 """
@@ -101,6 +101,7 @@ import re
 
 try:
     from sentence_transformers import SentenceTransformer, util
+
     SENTENCE_TRANSFORMERS_AVAILABLE = True
 except ImportError:
     SENTENCE_TRANSFORMERS_AVAILABLE = False
@@ -108,7 +109,7 @@ except ImportError:
 
 class RAGMetrics:
     """Métriques d'évaluation améliorées"""
-    
+
     def __init__(self):
         # Modèle pour similarité sémantique
         if SENTENCE_TRANSFORMERS_AVAILABLE:
@@ -121,30 +122,24 @@ class RAGMetrics:
                 self.sentence_model = None
         else:
             self.sentence_model = None
-    
-    def compute_semantic_similarity(
-        self, 
-        generated_answer: str, 
-        reference_answer: str
-    ) -> float:
+
+    def compute_semantic_similarity(self, generated_answer: str, reference_answer: str) -> float:
         """
         Similarité sémantique entre réponse générée et référence
         """
         if not self.sentence_model:
             return 0.0
-            
+
         try:
             emb1 = self.sentence_model.encode(generated_answer, convert_to_tensor=True)
             emb2 = self.sentence_model.encode(reference_answer, convert_to_tensor=True)
-            
+
             similarity = util.cos_sim(emb1, emb2).item()
             return similarity
         except Exception as e:
             print(f"  Erreur calcul similarité: {e}")
             return 0.0
-    
-    
-    
+
     def _normalize(self, s: str) -> str:
         if not s:
             return ""
@@ -153,26 +148,23 @@ class RAGMetrics:
         s = "".join(ch for ch in s if unicodedata.category(ch) != "Mn")  # strip accents
         s = re.sub(r"\s+", " ", s).strip()
         return s
-    
-    
+
     def compute_retrieval_precision(
-        self,
-        retrieved_docs: List[Dict],
-        expected_keywords: List[str]
+        self, retrieved_docs: List[Dict], expected_keywords: List[str]
     ) -> float:
         """
         Précision du retrieval basée sur présence de keywords
-        
+
         Args:
             retrieved_docs: Documents récupérés [{text, title}, ...]
             expected_keywords: Mots-clés attendus
-        
+
         Returns:
             Score 0-1
         """
         if not retrieved_docs or not expected_keywords:
             return 0.0
-        
+
         # Concaténation des textes
         all_text = self._normalize(" ".join([doc.get("text", "") for doc in retrieved_docs]))
 
@@ -182,60 +174,56 @@ class RAGMetrics:
         found = sum(1 for kw in keys if kw in all_text)
 
         return found / len(expected_keywords)
-    
-    def compute_answer_completeness(
-        self,
-        answer: str,
-        expected_keywords: List[str]
-    ) -> float:
+
+    def compute_answer_completeness(self, answer: str, expected_keywords: List[str]) -> float:
         """
         Complétude de la réponse
-        
+
         Vérifie si la réponse couvre tous les aspects attendus
         """
         if not answer or not expected_keywords:
             return 0.0
-            
+
         answer_lower = self._normalize(answer)
-        
+
         answers = [self._normalize(kw) for kw in expected_keywords]
-        
+
         found = sum(1 for kw in answers if kw.lower() in answer_lower)
-        
+
         return found / len(expected_keywords)
-    
+
     def compute_average_similarity(self, retrieved_docs: List[Dict]) -> float:
         """
         Similarité moyenne des documents récupérés
-        
+
         Indique la pertinence globale du retrieval
         """
         if not retrieved_docs:
             return 0.0
-        
+
         similarities = [doc.get("similarity", 0.0) for doc in retrieved_docs]
         return np.mean(similarities)
-    
+
     def evaluate_response(
         self,
         question: str,
         generated_answer: str,
         retrieved_docs: List[Dict],
         reference_answer: str = None,
-        expected_keywords: List[str] = None
+        expected_keywords: List[str] = None,
     ) -> Dict[str, float]:
         """
         Évaluation complète d'une réponse
-        
+
         Returns:
             Dict avec toutes les métriques
         """
         metrics = {
             "answer_length": len(generated_answer),
             "num_sources": len(retrieved_docs),
-            "avg_source_similarity": self.compute_average_similarity(retrieved_docs)
+            "avg_source_similarity": self.compute_average_similarity(retrieved_docs),
         }
-        
+
         # Métriques basées sur keywords
         if expected_keywords:
             metrics["retrieval_precision"] = self.compute_retrieval_precision(
@@ -244,11 +232,11 @@ class RAGMetrics:
             metrics["answer_completeness"] = self.compute_answer_completeness(
                 generated_answer, expected_keywords
             )
-        
+
         # Similarité sémantique (si référence disponible)
         if reference_answer and self.sentence_model:
             metrics["semantic_similarity"] = self.compute_semantic_similarity(
                 generated_answer, reference_answer
             )
-        
+
         return metrics

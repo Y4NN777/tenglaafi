@@ -65,9 +65,9 @@ class TropicalMedicalDataCollector:
     >>> c = TropicalMedicalDataCollector(output_dir="data")
     >>> c.generate_corpus(min_docs=500)
     """
-    
+
     # === CONFIGURATION DES SOURCES ===
-    
+
     WHO_URLS = [
         "https://www.who.int/fr/news-room/fact-sheets/detail/malaria",
         "https://www.who.int/fr/news-room/fact-sheets/detail/dengue-and-severe-dengue",
@@ -93,23 +93,36 @@ class TropicalMedicalDataCollector:
         "https://www.who.int/fr/news-room/fact-sheets/detail/foodborne-trematodiases",
         "https://www.who.int/fr/news-room/fact-sheets/detail/cryptosporidiosis",
         "https://www.who.int/fr/news-room/fact-sheets/detail/blindness-and-vision-loss",
-        "https://www.paho.org/en/topics/neglected-tropical-and-vector-borne-diseases"
+        "https://www.paho.org/en/topics/neglected-tropical-and-vector-borne-diseases",
     ]
 
     PUBMED_QUERIES = [
-        "tropical diseases treatment", "medicinal plants Africa", "herbal medicine tropical diseases",
-        "malaria traditional medicine", "artemisia antimalarial", "neem medicinal properties",
-        "neglected tropical diseases control", "vector borne diseases epidemiology",
-        "traditional medicine tropical diseases Africa", "herbal remedies malaria treatment",
-        "Zika virus epidemiology", "oral drug therapy neglected tropical diseases",
-        "natural product tropical infectious diseases", "neglected tropical diseases mass drug administration",
+        "tropical diseases treatment",
+        "medicinal plants Africa",
+        "herbal medicine tropical diseases",
+        "malaria traditional medicine",
+        "artemisia antimalarial",
+        "neem medicinal properties",
+        "neglected tropical diseases control",
+        "vector borne diseases epidemiology",
+        "traditional medicine tropical diseases Africa",
+        "herbal remedies malaria treatment",
+        "Zika virus epidemiology",
+        "oral drug therapy neglected tropical diseases",
+        "natural product tropical infectious diseases",
+        "neglected tropical diseases mass drug administration",
         "integrated prevention treatment neglected tropical diseases",
         "burden neglected tropical diseases diagnosis access",
-        "comprehensive review neglected tropical diseases", "drug development tropical diseases open source",
-        "public health surveillance tropical diseases Madagascar", "health promotion neglected tropical diseases",
-        "advances diagnosis treatment tropical infections", "herbal remedies tropical fever",
-        "traditional anti-parasitic medicinal plants", "climate change impact tropical diseases",
-        "vector control tropical disease prevention", "vaccine candidates tropical infectious diseases"
+        "comprehensive review neglected tropical diseases",
+        "drug development tropical diseases open source",
+        "public health surveillance tropical diseases Madagascar",
+        "health promotion neglected tropical diseases",
+        "advances diagnosis treatment tropical infections",
+        "herbal remedies tropical fever",
+        "traditional anti-parasitic medicinal plants",
+        "climate change impact tropical diseases",
+        "vector control tropical disease prevention",
+        "vaccine candidates tropical infectious diseases",
     ]
 
     MEDICINAL_PLANTS_URLS = [
@@ -129,9 +142,9 @@ class TropicalMedicalDataCollector:
         "https://www.fao.org/4/y4496e/Y4496E42.htm",
         "https://www.researchgate.net/publication/313417728_Phytochimiques_des_plantes_medicinales_utilisees_dans_la_prise_en_charge_des_maladies_infantiles_au_SudBenin",
         "https://www.echocommunity.org/fr/resources/f4cbe972-a04a-4bb7-9c14-641b823b5fe8",
-        "https://hsd-fmsb.org/index.php/hra/article/view/5940"
+        "https://hsd-fmsb.org/index.php/hra/article/view/5940",
     ]
-    
+
     def __init__(self, output_dir: str = "data"):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
@@ -139,9 +152,9 @@ class TropicalMedicalDataCollector:
         self.scraper = WebScraper()
         self.pubmed = PubMedAPI()
         self.pdf_loader = PDFLoader()
-    
+
     # === MÉTHODES DE COLLECTE PAR SOURCE ===
-    
+
     def collect_from_who(self) -> List[Dict]:
         """Collecte et normalise les pages WHO listées dans ``WHO_URLS``.
 
@@ -162,26 +175,26 @@ class TropicalMedicalDataCollector:
           limitations de taux.
         """
         logger.info(" Phase 1/4: Collecte WHO Tropical Diseases")
-        
+
         docs = []
         for idx, url in enumerate(self.WHO_URLS):
             try:
                 doc = self.scraper.fetch_url(url)
-                
+
                 if doc:
                     doc["id"] = idx
                     doc["source"] = "WHO"
                     docs.append(doc)
                     logger.info(f"  ✓ WHO {idx+1}/{len(self.WHO_URLS)}")
-                
+
                 time.sleep(1.0)  # Rate limiting
-                
+
             except Exception as e:
                 logger.error(f"  ✗ Erreur WHO {url}: {e}")
-        
+
         logger.info(f"→ WHO: {len(docs)} documents collectés")
         return docs
-    
+
     def collect_from_pubmed(self) -> List[Dict]:
         """Interroge PubMed pour une série de requêtes et récupère des abstracts.
 
@@ -203,33 +216,33 @@ class TropicalMedicalDataCollector:
             propage pas les exceptions vers l'appelant.
         """
         logger.info("\n  Phase 2/4: Collecte PubMed Articles")
-        
+
         docs = []
         doc_id = 1000  # Offset pour éviter collisions
-        
+
         for query in self.PUBMED_QUERIES:
             try:
                 # Recherche PMIDs
                 pmids = self.pubmed.search_articles(query, max_results=50)
-                
+
                 # Récupération abstracts (limiter à 10 par query)
                 for pmid in pmids[:10]:
                     abstract = self.pubmed.fetch_abstract(pmid)
-                    
+
                     if abstract:
                         abstract["id"] = doc_id
                         abstract["source"] = "PubMed"
                         docs.append(abstract)
                         doc_id += 1
-                
+
                 time.sleep(1.0)  # Rate limiting
-                
+
             except Exception as e:
                 logger.error(f"  ✗ Erreur PubMed query '{query}': {e}")
-        
+
         logger.info(f"→ PubMed: {len(docs)} documents collectés")
         return docs
-    
+
     def collect_from_medicinal_plants(self) -> List[Dict]:
         """Récupère des documents relatifs aux plantes médicinales à partir
         de la liste ``MEDICINAL_PLANTS_URLS``.
@@ -247,29 +260,29 @@ class TropicalMedicalDataCollector:
           charge sur les serveurs externes.
         """
         logger.info("\n Phase 3/4: Collecte Plantes Médicinales")
-        
+
         docs = []
         doc_id = 3000  # Offset
-        
+
         for idx, url in enumerate(self.MEDICINAL_PLANTS_URLS):
             try:
                 doc = self.scraper.fetch_url(url)
-                
+
                 if doc:
                     doc["id"] = doc_id
                     doc["source"] = "MedicinalPlants"
                     docs.append(doc)
                     logger.info(f"   Plants {idx+1}/{len(self.MEDICINAL_PLANTS_URLS)}")
                     doc_id += 1
-                
+
                 time.sleep(1.5)  # Rate limiting plus prudent
-                
+
             except Exception as e:
                 logger.error(f"   Erreur Plants {url}: {e}")
-        
+
         logger.info(f"→ Plantes Médicinales: {len(docs)} documents collectés")
         return docs
-    
+
     def collect_from_pdfs(self, pdf_dir: str = "data/raw") -> List[Dict]:
         """Charge et extrait le texte des fichiers PDF présents dans ``pdf_dir``.
 
@@ -305,15 +318,15 @@ class TropicalMedicalDataCollector:
         if not pdf_dir_path.exists():
             logger.error(f" ✗ Répertoire PDFs introuvable: {pdf_dir_path}")
             return []
-        
+
         # Lister les PDFs trouvés
         pdf_files = list(pdf_dir_path.glob("*.pdf"))
         logger.info(f" PDFs trouvés: {len(pdf_files)}")
         for pdf in pdf_files:
             logger.info(f"   - {pdf.name}")
-        
+
         docs = self.pdf_loader.load_pdfs_from_directory(str(pdf_dir_path))
-        
+
         # Réassigner IDs avec offset
         for idx, doc in enumerate(docs):
             doc["id"] = 4000 + idx
@@ -382,7 +395,7 @@ class TropicalMedicalDataCollector:
 
         # Sauvegarde
         self.save_corpus()
-    
+
     def save_corpus(self):
         """Persiste le corpus en JSON et écrit un fichier texte listant les
         sources regroupées par type.
@@ -393,25 +406,25 @@ class TropicalMedicalDataCollector:
         """
         corpus_path = self.output_dir / "corpus.json"
         sources_path = self.output_dir / "sources.txt"
-        
+
         # Corpus JSON
         with open(corpus_path, "w", encoding="utf-8") as f:
             json.dump(self.corpus, f, ensure_ascii=False, indent=2)
-        
+
         # Sources TXT avec groupement par type
         with open(sources_path, "w", encoding="utf-8") as f:
             f.write("# Sources Médicales Tropicales\n\n")
-            
+
             sources_by_type = {}
             for doc in self.corpus:
                 src_type = doc.get("source", "Unknown")
                 sources_by_type.setdefault(src_type, []).append(doc)
-            
+
             for src_type, docs in sources_by_type.items():
                 f.write(f"\n## {src_type} ({len(docs)} documents)\n")
                 for doc in docs:
                     f.write(f"{doc['id']}\t{doc['title']}\t{doc.get('url', 'N/A')}\n")
-        
+
         logger.info(f"\n Corpus sauvegardé: {corpus_path}")
         logger.info(f" Sources sauvegardées: {sources_path}")
 
@@ -421,17 +434,18 @@ class TropicalMedicalDataCollector:
 if __name__ == "__main__":
     collector = TropicalMedicalDataCollector(output_dir="data")
     collector.generate_corpus(min_docs=500)
-    
+
     # Statistiques finales
     stats = {
         "total": len(collector.corpus),
-        "avg_length": sum(d.get("length", 0) for d in collector.corpus) / len(collector.corpus or [1]),
-        "by_source": {}
+        "avg_length": sum(d.get("length", 0) for d in collector.corpus)
+        / len(collector.corpus or [1]),
+        "by_source": {},
     }
-    
+
     for doc in collector.corpus:
         src = doc.get("source", "Unknown")
         stats["by_source"][src] = stats["by_source"].get(src, 0) + 1
-    
+
     print("\n  Statistiques Finales:")
     print(json.dumps(stats, indent=2, ensure_ascii=False))

@@ -100,6 +100,7 @@ class MedicalLLM:
 
         try:
             import importlib
+
             hf_mod = importlib.import_module("huggingface_hub")
             InferenceClient = getattr(hf_mod, "InferenceClient")
         except Exception as e:
@@ -117,7 +118,9 @@ class MedicalLLM:
         # Détection de l’API disponible (compat >=0.26 : chat_completions.create ; sinon chat_completion)
         self._use_chat_completions = hasattr(self.client, "chat_completions")
 
-    def _chat(self, system_prompt: str, user_prompt: str, max_tokens: int, temperature: float) -> str:
+    def _chat(
+        self, system_prompt: str, user_prompt: str, max_tokens: int, temperature: float
+    ) -> str:
         """Compat layer pour versions différentes de huggingface_hub."""
         if self._use_chat_completions:
             # API récente (client.chat_completions.create)
@@ -169,7 +172,6 @@ class MedicalLLM:
             "5.Structurer la réponse en paragraphes ou listes pour la lisibilité."
         )
 
-
         user_prompt = (
             f" **Contexte médical disponible :**\n{context}\n\n"
             f" **Question :** {question}\n\n"
@@ -200,6 +202,7 @@ class MedicalLLM:
 
 # Singleton global
 _llm_client = None
+
 
 def get_llm_client(model_name: str = LLM_MODEL) -> MedicalLLM:
     """Récupère l'instance singleton du client LLM"""

@@ -12,6 +12,7 @@ from src.rag_pipeline.embeddings import (
     embed_texts as embed_texts_fn,
 )
 
+
 # ─────────────────────────────────────────────────────────────
 # Fake SentenceTransformer déterministe (aucun accès réseau)
 # ─────────────────────────────────────────────────────────────
@@ -44,6 +45,7 @@ class FakeST:
         # Non utilisé par notre code (on passe toujours une liste), couvre quand même
         return mk(1)
 
+
 # ─────────────────────────────────────────────────────────────
 # Fixtures
 # ─────────────────────────────────────────────────────────────
@@ -51,9 +53,11 @@ class FakeST:
 def patch_sentence_transformer(monkeypatch):
     monkeypatch.setattr(PATCH_ST, lambda name: FakeST(name))
 
+
 @pytest.fixture
 def manager() -> EmbeddingManager:
     return EmbeddingManager(model_name="fake-mini")
+
 
 # ─────────────────────────────────────────────────────────────
 # Tests EmbeddingManager (unitaires, déterministes)
@@ -109,15 +113,18 @@ class TestEmbeddingManagerUnit:
         class Boom:
             def __init__(self, *_a, **_k):
                 raise RuntimeError("load failed")
+
         monkeypatch.setattr(PATCH_ST, Boom)
         with pytest.raises(RuntimeError):
             EmbeddingManager(model_name="boom")
+
 
 # ─────────────────────────────────────────────────────────────
 # Tests du singleton et des wrappers (API prête à intégrer)
 # ─────────────────────────────────────────────────────────────
 def test_singleton_and_wrappers(monkeypatch):
     import src.rag_pipeline.embeddings as emb
+
     # reset singleton proprement
     emb._embedding_manager = None
     monkeypatch.setattr(PATCH_ST, lambda name: FakeST(name))

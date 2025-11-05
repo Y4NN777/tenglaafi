@@ -54,7 +54,6 @@ Exemple de sortie :
 Auteur : Y4NN777
 """
 
-
 from dotenv import load_dotenv
 import sys
 from pathlib import Path
@@ -78,9 +77,7 @@ def main():
     if not corpus_path.exists():
         print("  Corpus introuvable!")
         print(f"   Chemin attendu: {corpus_path}")
-        print(
-            "  Lancez d'abord: python src/data_collection/tropical_medical_data_collector.py"
-        )
+        print("  Lancez d'abord: python src/data_collection/tropical_medical_data_collector.py")
         return
 
     # Statistiques du corpus
@@ -93,9 +90,7 @@ def main():
         "total_documents": len(corpus),
         "total_characters": sum(len(doc.get("text", "")) for doc in corpus),
         "avg_length": (
-            sum(len(doc.get("text", "")) for doc in corpus) / len(corpus)
-            if corpus
-            else 0
+            sum(len(doc.get("text", "")) for doc in corpus) / len(corpus) if corpus else 0
         ),
     }
 

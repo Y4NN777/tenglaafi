@@ -20,7 +20,7 @@ Fonctionnalités principales
      avec `force_reindex=True` pour des tests reproductibles.
 
 3. **Fixtures API**
-   - `api_client` : client `TestClient` (FastAPI) pour les tests d’API.  
+   - `api_client` : client `TestClient` (FastAPI) pour les tests d’API.
      Peut être activé en important `src.server.main:app`.
 
 4. **Configuration des marqueurs Pytest**
@@ -66,6 +66,7 @@ from src.rag_pipeline.rag import RAGPipeline
 
 # === FIXTURES DE DONNÉES ===
 
+
 @pytest.fixture(scope="session")
 def sample_corpus():
     """Corpus de test minimal (10 documents)"""
@@ -76,7 +77,7 @@ def sample_corpus():
             "text": f"Contenu médical test numéro {i}. " * 50,
             "url": f"https://test.com/doc{i}",
             "length": 500,
-            "source": "Test"
+            "source": "Test",
         }
         for i in range(10)
     ]
@@ -87,10 +88,10 @@ def temp_corpus_file(sample_corpus, tmp_path_factory):
     """Fichier corpus.json temporaire"""
     temp_dir = tmp_path_factory.mktemp("data")
     corpus_path = temp_dir / "corpus.json"
-    
+
     with open(corpus_path, "w", encoding="utf-8") as f:
         json.dump(sample_corpus, f, ensure_ascii=False, indent=2)
-    
+
     return corpus_path
 
 
@@ -102,6 +103,7 @@ def temp_chroma_dir(tmp_path_factory):
 
 # === FIXTURES DE COMPOSANTS ===
 
+
 @pytest.fixture(scope="session")
 def embedding_manager():
     """Gestionnaire d'embeddings réutilisable"""
@@ -111,10 +113,7 @@ def embedding_manager():
 @pytest.fixture
 def vector_store(temp_chroma_dir):
     """ChromaDB temporaire pour chaque test"""
-    store = ChromaVectorStore(
-        persist_dir=str(temp_chroma_dir),
-        collection_name="test_collection"
-    )
+    store = ChromaVectorStore(persist_dir=str(temp_chroma_dir), collection_name="test_collection")
     yield store
     # Cleanup après le test
     try:
@@ -137,9 +136,7 @@ def llm_client():
 def rag_pipeline(temp_corpus_file, temp_chroma_dir):
     """Pipeline RAG complet pour tests"""
     pipeline = RAGPipeline(
-        corpus_path=str(temp_corpus_file),
-        persist_dir=str(temp_chroma_dir),
-        force_reindex=True
+        corpus_path=str(temp_corpus_file), persist_dir=str(temp_chroma_dir), force_reindex=True
     )
     yield pipeline
     # Cleanup
@@ -151,27 +148,22 @@ def rag_pipeline(temp_corpus_file, temp_chroma_dir):
 
 # === FIXTURES API ===
 
+
 @pytest.fixture
 def api_client():
     """Client de test FastAPI"""
     from fastapi.testclient import TestClient
+
     # from src.server.main import app
     # return TestClient(app)
 
 
 # === MARKERS PYTEST ===
 
+
 def pytest_configure(config):
     """Configuration des markers personnalisés"""
-    config.addinivalue_line(
-        "markers", "slow: tests lents (>5s)"
-    )
-    config.addinivalue_line(
-        "markers", "integration: tests d'intégration"
-    )
-    config.addinivalue_line(
-        "markers", "requires_hf_token: nécessite HF_TOKEN"
-    )
-    config.addinivalue_line(
-        "markers", "performance: tests de performance"
-    )
+    config.addinivalue_line("markers", "slow: tests lents (>5s)")
+    config.addinivalue_line("markers", "integration: tests d'intégration")
+    config.addinivalue_line("markers", "requires_hf_token: nécessite HF_TOKEN")
+    config.addinivalue_line("markers", "performance: tests de performance")

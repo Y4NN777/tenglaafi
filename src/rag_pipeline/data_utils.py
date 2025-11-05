@@ -69,7 +69,6 @@ Auteur : Y4NN777
 
 """
 
-
 from __future__ import annotations
 
 import logging
@@ -169,9 +168,7 @@ class WebScraper:
             title_tag = soup.find("title") or soup.find("h1")
             title = title_tag.get_text(strip=True) if title_tag else "Sans Titre"
 
-            content_tags = (
-                soup.find_all("article") or soup.find_all("main") or soup.find_all("p")
-            )
+            content_tags = soup.find_all("article") or soup.find_all("main") or soup.find_all("p")
             paragraphs: List[str] = []
             for tag in content_tags:
                 t = tag.get_text(separator=" ", strip=True)
@@ -215,9 +212,7 @@ class PubMedAPI:
     def search_articles(query: str, max_results: int = 50) -> List[str]:
         """Recherche des articles PubMed par mot-clé, retourne une liste de PMIDs."""
         try:
-            search_url = (
-                f"{PubMedAPI.BASE_URL}esearch.fcgi?db=pubmed&term={query}&retmax={max_results}&retmode=json"
-            )
+            search_url = f"{PubMedAPI.BASE_URL}esearch.fcgi?db=pubmed&term={query}&retmax={max_results}&retmode=json"
             response = requests.get(search_url, timeout=10)
             response.raise_for_status()
             data = response.json()
