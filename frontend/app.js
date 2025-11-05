@@ -19,6 +19,20 @@ const TengLaafiChat = (() => {
     let loadingMessageElement = null;
 
     /**
+     * Supprime les citations de type [Document X] ou (Document Y) ou Document Z du texte.
+     * @param {string} text - Le texte potentiellement contenant des citations.
+     * @returns {string} - Le texte sans les citations.
+     */
+    const removeCitations = (text) => {
+        // Regex pour capturer [Document X], (Document Y), Document Z, etc.
+        // où X, Y, Z sont des chiffres.
+        // \[(?:Document\s\d+)\]  -> [Document 123]
+        // \((?:Document\s\d+)\)  -> (Document 123)
+        // Document\s\d+         -> Document 123 (sans parenthèses)
+        return text.replace(/\[Document\s\d+\]|\(Document\s\d+\)|Document\s\d+/g, '').trim();
+    };
+
+    /**
      * Vérifie périodiquement la disponibilité du backend.
      */
     const checkBackendStatus = async () => {
@@ -136,7 +150,9 @@ const TengLaafiChat = (() => {
             
             hideLoadingIndicator();
 
-            const answer = data.answer || "Je n’ai pas trouvé de réponse précise à cette question.";
+            let answer = data.answer || "Je n’ai pas trouvé de réponse précise à cette question.";
+            answer = removeCitations(answer); // Supprime les citations du texte de la réponse
+            answer = formatResponse(answer); // Formate la réponse pour l'affichage
             addMessage(answer, "bot", true); // On suppose que la réponse peut contenir du HTML
             
             renderSources(data.sources);
