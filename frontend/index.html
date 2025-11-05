@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TengLaafi - Assistant Santé</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="logo.jpg" type="image/jpeg">
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <div class="logo"><img src="logo.jpg" alt="TengLaafi Logo"></div>
+            <div class="brand-name">TengLaafi</div>
+        </div>
+        <div class="status-indicator" id="statusIndicator" title="Backend: Déconnecté"></div>
+    </div>
+
+    <div class="chat-container" id="chatContainer">
+        <div class="message bot">
+             Bonjour ! Je suis <strong>TengLaafi</strong>, votre assistant santé ancré dans les savoirs africains.  
+            Posez-moi une question par exemple sur le <em>paludisme</em>, l’<em>Artemisia</em> ou tout autre sujet de santé tropicales et plantes medicinales.
+        </div>
+    </div>
+
+    <div class="input-container">
+        <div class="input-wrapper">
+            <input 
+                type="text" 
+                id="messageInput" 
+                placeholder="Écrivez votre question ici..."
+                autocomplete="off"
+            >
+        </div>
+        <button class="send-button" id="sendButton" title="Envoyer">
+            <svg viewBox="0 0 24 24">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+        </button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
