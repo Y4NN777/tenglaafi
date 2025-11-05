@@ -1,11 +1,22 @@
 from fastapi import APIRouter, HTTPException
-from src.server.models import QueryRequest, QueryResponse
+from fastapi.responses import FileResponse
+from models import QueryRequest, QueryResponse
+
+import sys
+from pathlib import Path
+
+# Ajouter le répertoire racine 
+root_dir = Path(__file__).resolve().parents[2]
+if str(root_dir) not in sys.path:
+    sys.path.append(str(root_dir))
+    
 from src.rag_pipeline.rag import RAGPipeline
 
 router = APIRouter()
 
 # Initialisation du moteur RAG
 rag = RAGPipeline()
+
 
 @router.get("/health")
 async def health_check():
