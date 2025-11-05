@@ -277,8 +277,10 @@ class RAGPipeline:
         # 5. Génération de la réponse
         answer = None
         try:
-            answer = self.llm.generate_answer(context, question)
-            logger.info(f"Réponse LLM générée: {len(answer) if answer else 0} caractères")
+            raw_answer = self.llm.generate_answer(context, question)
+            # Nettoyer la réponse immédiatement pour éviter les réponses vides (espaces)
+            answer = raw_answer.strip() if raw_answer else ""
+            logger.info(f"Réponse LLM générée: {len(answer)} caractères (après nettoyage)")
         except Exception as e:
             logger.error(f"Erreur lors de la génération LLM: {e}", exc_info=True)
             answer = None

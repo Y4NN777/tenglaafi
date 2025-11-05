@@ -163,7 +163,7 @@ class MedicalLLM:
             "si une information n’y figure pas, indique-le explicitement. "
             "Tu dois :\n"
             "1. Fournir des explications concises, factuelles et en français clair.\n"
-            "2. Citer systématiquement les sources en fin de réponse (format [Document X]).\n"
+            "2. Eviter d'inclure de citations comme [Document X] ou (Document Y) ou encore Document Z dans ta réponse générée. Les sources sont gérées séparément.\n"
             "3. Éviter toute spéculation ou hallucination.\n"
             "4. Employer un ton neutre, professionnel et bienveillant.\n"
             "5.Structurer la réponse en paragraphes ou listes pour la lisibilité."
