@@ -33,7 +33,13 @@ async def query_rag(request: QueryRequest):
         raise HTTPException(status_code=400, detail="La question est trop courte.")
 
     try:
-        response = rag.query(question, top_k=request.top_k)
-        return QueryResponse(answer=response["answer"], sources=response.get("sources"))
+        # rag.query retourne un tuple (answer, sources)
+        answer, sources = rag.query(
+            question,
+            top_k=request.top_k,
+            return_sources=True
+        )
+        return QueryResponse(answer=answer, sources=sources)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
