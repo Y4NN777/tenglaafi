@@ -1,9 +1,12 @@
-#  Évaluation du pipeline RAG du chatbot Tenglaafi
+# Évaluation du pipeline RAG du chatbot Tenglaafi
 
 ## 1. Objectif général
 
-Cette phase vise à quantifier les performances globales du pipeline RAG (Retrieval-Augmented Generation) de Tenglaafi, à partir d'un jeu de 20 questions médicales portant sur les maladies tropicales et les plantes médicinales.
-Elle évalue la cohérence entre les documents récupérés (R) et la réponse générée (G), en suivant le protocole de l'étape 5 du hackathon :
+Cette phase d'évaluation vise à mesurer les performances globales du pipeline RAG (Retrieval-Augmented Generation) de Tenglaafi, assistant médical spécialisé dans les maladies tropicales et les plantes médicinales.
+
+Elle quantifie la cohérence entre les documents récupérés (R) et la réponse générée (G) à partir d'un jeu de 20 questions médicales de référence.
+
+**Processus complet du pipeline évalué :**
 
 ```
 collecte → embeddings → indexation → génération → évaluation
@@ -17,29 +20,27 @@ collecte → embeddings → indexation → génération → évaluation
 | Base vectorielle | ChromaDB (collection tropical_medicine) |
 | Modèle d'embeddings | sentence-transformers/paraphrase-multilingual-mpnet-base-v2 |
 | Modèle LLM | mistralai/Mistral-7B-Instruct-v0.3 |
-| Corpus indexé | data/corpus.json — 1531 documents |
+| Corpus indexé | data/corpus.json – 1 531 documents |
 | Questions d'évaluation | evaluation/tests/evaluation_results/questions.json |
 | Script d'évaluation | evaluation/evaluate.py |
-| Fichiers résultats | evaluation/tests/evaluation_results/evaluation_results.json & .csv |
-
-L'évaluation s'est déroulée après indexation complète (make index), avec force_reindex=False pour utiliser la base persistée.
+| Fichiers résultats | evaluation/tests/evaluation_results/evaluation_results.json et .csv |
+| Mode d'exécution | Indexation complète, puis force_reindex=False |
 
 ## 3. Structure des sorties
 
-Le script génère deux fichiers complémentaires :
+Deux formats complémentaires sont produits :
 
-### evaluation_results.json
+### a) evaluation_results.json
 
-Contient pour chaque question :
-- la question posée et la réponse attendue,
-- la réponse générée par Tenglaafi,
-- les documents sources récupérés,
-- et les métriques calculées :
+Contient, pour chaque question :
+- la question, la réponse attendue et la réponse générée
+- la liste des documents sources extraits
+- l'ensemble des métriques calculées automatiquement
 
 ```json
 {
   "id": 1,
-  "question": "...",
+  "question": "Quels sont les principaux symptômes du paludisme non compliqué ?",
   "metrics": {
     "retrieval_precision": 0.44,
     "answer_completeness": 0.47,
@@ -49,9 +50,9 @@ Contient pour chaque question :
 }
 ```
 
-### evaluation_results.csv
+### b) evaluation_results.csv
 
-Tableau plat reprenant ces informations pour inspection manuelle, calculs externes ou visualisations.
+Format tabulaire plat pour inspection manuelle, post-traitement ou intégration dans un tableur / dashboard.
 
 ## 4. Métriques utilisées
 
@@ -59,88 +60,96 @@ Les métriques proviennent du module evaluation/metrics.py.
 
 | Métrique | Description | Interprétation |
 |----------|-------------|----------------|
-| Retrieval Precision | % de mots-clés attendus présents dans les documents récupérés. | Capacité du moteur vectoriel à cibler les bons passages du corpus. |
-| Answer Completeness | Taux de couverture des mots-clés attendus dans la réponse. | Indique si la réponse du LLM couvre tous les aspects essentiels. |
-| Semantic Similarity | Cosine de similarité entre la réponse générée et la référence. | Mesure la cohérence sémantique globale du texte produit. |
-| Response Time (s) | Temps d'exécution moyen par requête. | Indicateur de latence et d'efficacité du pipeline. |
+| Retrieval Precision | % de mots-clés attendus retrouvés dans les documents sélectionnés | Qualité du moteur de recherche vectoriel |
+| Answer Completeness | Couverture des mots-clés attendus dans la réponse | Indique l'exhaustivité des réponses |
+| Semantic Similarity | Similarité cosinus entre réponse générée et référence | Fidélité du contenu généré |
+| Pertinence (/5) | Pondération combinée : 60 % similarité + 40 % complétude | Mesure globale de qualité perçue |
+| Response Time (s) | Temps moyen d'exécution par requête | Indicateur de rapidité du pipeline |
 
 ## 5. Résultats globaux
 
-Les résultats agrégés sont extraits du champ "summary" du JSON, calculé automatiquement par evaluate.py :
+D'après le résumé agrégé du JSON (summary) :
 
 | Métrique | Score moyen |
 |----------|-------------|
-| 🔹 Précision retrieval moyenne | 0.4483 |
-| 🔹 Complétude réponse moyenne | 0.4558 |
-| 🔹 Similarité sémantique moyenne | 0.607 |
-| 🔹 Temps moyen de réponse | 2.3862 s |
-| 🔹 Nombre total de questions | 20 |
+| Précision retrieval moyenne | 0.4483 |
+| Précision retrieval (/5) | 2.2415 / 5 |
+| Complétude réponse moyenne | 0.4558 |
+| Similarité sémantique moyenne | 0.607 |
+| Pertinence (/5) moyenne | 2.733 / 5 |
+| Temps moyen de réponse | 2.386 s |
+| Nombre de questions testées | 20 |
 
 ## 6. Analyse qualitative
 
-###  6.1 Points forts
+### 6.1 Points forts
 
-- **Cohérence sémantique élevée (0.607)** :
-  le modèle Mistral-7B parvient à reformuler correctement les concepts médicaux du contexte.
+**Cohérence sémantique solide (≈ 0.61) :**
+le modèle Mistral-7B reformule avec fidélité les notions médicales.
 
-- **Latence maîtrisée (~2.4 s)** sur CPU, remarquable pour un LLM de cette taille.
+**Latence maîtrisée (~ 2.4 s) :**
+performance remarquable pour un modèle de 7 B de paramètres.
 
-- **Robustesse du retrieval** : la précision avoisine 45%, ce qui est bon pour un corpus de plus de 1500 documents.
+**Résilience du retrieval (~ 45 %) :**
+bon ciblage des documents malgré un corpus hétérogène.
 
-###  6.2 Points à améliorer
+### 6.2 Limites observées
 
-- **Complétude moyenne faible (~0.46)** : certaines réponses omettent des détails précis (symptômes secondaires, termes techniques).
+**Complétude moyenne faible (~ 0.46) :**
+certaines réponses restent superficielles (symptômes manquants, oublis contextuels).
 
-- **Zéros fréquents pour retrieval_precision et answer_completeness** :
-  ces cas proviennent souvent de variations lexicales (pluriels, accents, synonymes).
-  → Un raffinage du prétraitement linguistique et des mots-clés réduira ces écarts.
+**Présence de zéros artificiels :**
+dus à des différences d'orthographe ou d'accents (p. ex. "fièvre" vs "fievre").
 
-- **Manque de citations directes** : bien que les sources soient intégrées dans le contexte, le LLM ne les mentionne pas toujours explicitement dans la réponse.
+**Absence fréquente de citations explicites :**
+le LLM n'inclut pas toujours [Document X] dans la réponse finale.
 
-## 7. Interprétation
+## 7. Interprétation des scores
 
-### 7.1 Lecture rapide des scores
+| Intervalle | Interprétation |
+|------------|----------------|
+| > 0.7 | Excellente cohérence et précision |
+| 0.5 – 0.7 | Bonne qualité, améliorable |
+| 0.3 – 0.5 | Moyenne, couverture partielle |
+| < 0.3 | Réponse faible ou hors-sujet |
 
-| Plage | Interprétation |
-|-------|----------------|
-| > 0.7 | Excellente performance |
-| 0.5 – 0.7 | Bonne cohérence mais améliorable |
-| 0.3 – 0.5 | Moyenne, contextualisation partielle |
-| < 0.3 | Faible ou hors-sujet |
+Le score global (≈ 0.6) positionne Tenglaafi dans la zone de cohérence correcte : le système comprend la majorité des questions et fournit des réponses médicalement plausibles.
 
-Les résultats actuels positionnent Tenglaafi dans la plage intermédiaire supérieure (≈0.6) :
-le système comprend globalement les questions et répond de façon plausible, mais l'extraction d'informations reste perfectible.
+## 8. Analyse du corpus et du retrieval
 
-### 7.2 Impact du corpus
+Le corpus mixte (OMS, PubMed, PDF locaux) entraîne des réponses parfois trop générales.
 
-Les tests révèlent que la qualité des documents indexés influence directement la précision du retrieval.
-Les textes très génériques (OMS, Wikipédia) réduisent la spécificité du vecteur.
-Un filtrage thématique plus strict améliorerait la correspondance conceptuelle.
+Les documents longs ou peu structurés diluent la pertinence du retrieval.
 
-## 8. Perspectives d'amélioration
+Un affinage sémantique des embeddings (modèle biomédical FR) permettrait d'améliorer la précision et la couverture des réponses.
 
-| Axe | Action recommandée |
-|-----|-------------------|
-| Retrieval | Affiner les embeddings avec un modèle biomédical francophone (BioClinicalBERT, CamemBERT-med). |
-| Réindexation | Filtrer les doublons et les phrases génériques avant la vectorisation. |
-| LLM | Ajouter un prompt contextuel plus directif (mention obligatoire des sources). |
-| Métriques | Ajouter une pondération sur la longueur des réponses et la diversité des sources. |
-| Évaluation | Introduire un ratings.json humain pour calibrer la pertinence perçue. |
+## 9. Perspectives d'amélioration
 
-## 9. Conclusion
+| Axe | Proposition |
+|-----|-------------|
+| Retrieval | Fine-tuning avec un modèle biomédical francophone (BioClinicalBERT, CamemBERT-Med). |
+| Prétraitement | Nettoyer et segmenter les textes (phrases courtes, suppression des doublons). |
+| LLM Prompting | Ajouter contraintes de style : « Cite au moins une source ». |
+| Évaluation | Introduire un ratings.json humain pour calibrer la pertinence subjective. |
+| Corpus | Séparer les sections "plantes" et "maladies" pour affiner le contexte. |
+| Interface | Retour visuel des sources pour validation rapide côté utilisateur. |
 
-Le pipeline RAG Tenglaafi démontre une performance solide pour une première version :
-- bonne compréhension contextuelle,
-- cohérence sémantique stable,
-- latence maîtrisée.
+## 10. Conclusion
 
-Les marges de progression se situent surtout sur la précision du retrieval et la complétude des réponses, deux points directement améliorables par des raffinements de corpus et de prompt.
+Le pipeline RAG Tenglaafi atteint un bon équilibre entre rapidité, cohérence linguistique et compréhension médicale, malgré un corpus hétérogène.
 
-## 10. Références des fichiers
+Les prochains travaux viseront à :
+- renforcer la pertinence des documents récupérés
+- enrichir le contexte avant génération
+- et améliorer la complétude des réponses via un prompting adaptatif
 
-| Fichier | Rôle | Localisation |
-|---------|------|--------------|
+**En résumé :** Tenglaafi RAG est prêt pour un usage expérimental et éducatif, mais nécessitera un affinement du corpus et du LLM pour un usage clinique fiable.
+
+## 11. Références des fichiers d'évaluation
+
+| Fichier | Description | Emplacement |
+|---------|-------------|-------------|
 | evaluation/evaluate.py | Script principal d'évaluation | evaluation/ |
-| evaluation/metrics.py | Calcul des métriques et normalisation linguistique | evaluation/ |
-| evaluation/tests/evaluation_results/evaluation_results.json | Résultats complets question par question | evaluation/tests/evaluation_results/ |
-| evaluation/tests/evaluation_results/evaluation_results.csv | Tableau plat pour export manuel ou Excel | evaluation/tests/evaluation_results/ |
+| evaluation/metrics.py | Calcul et normalisation des métriques | evaluation/ |
+| evaluation/tests/evaluation_results/evaluation_results.json | Résultats détaillés question → réponse | evaluation/tests/evaluation_results/ |
+| evaluation/tests/evaluation_results/evaluation_results.csv | Tableau plat pour inspection et scoring | evaluation/tests/evaluation_results/ |
