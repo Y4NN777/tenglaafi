@@ -3,7 +3,7 @@ name: CI/CD - Build, Push & Deploy
 on:
   push:
     branches: [ main ]
-    tags: [ 'v*.*.*' ] 
+    tags: [ 'v*.*.*' ]
 
 env:
   REGISTRY: ghcr.io
@@ -12,34 +12,38 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    permissions: { contents: read, packages: write }
     steps:
       - uses: actions/checkout@v4
-      
+      - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Build & tag
-        run: |
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }} \
-                       -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
-      
-      - name: Push
-        run: |
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      - name: Build & Push (latest + sha)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ghcr.io/${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+      - name: Also push semver tag
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
 
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: SSH deploy (pull & restart)
-        uses: appleboy/ssh-action@v1.0.3
+      - uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -64,13 +68,13 @@ jobs:
                 echo " API is healthy!"
                 break
               fi
-              echo "Attempt $i/10 failed, retrying in 3s..."
+              echo "Attempt $i/30 failed, retrying in 3s..."
               sleep 3
             done
             
             # Vérifier le statut final
             if ! curl -fsS http://127.0.0.1:8000/health; then
-              echo " API healthcheck failed after 10 attempts"
+              echo " API healthcheck failed after 30 attempts"
               docker logs tenglaafi_api --tail 50
               exit 1
             fi
