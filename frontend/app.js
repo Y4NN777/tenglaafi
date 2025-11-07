@@ -4,8 +4,8 @@
  */
 const TengLaafiChat = (() => {
     // === Configuration ===
-    const API_URL = "http://127.0.0.1:8000/query";
-    const HEALTH_URL = "http://127.0.0.1:8000/health";
+    const API_URL = "https://tenglaafi-chat.y7-solutions.online";
+    const HEALTH_URL = "https://tenglaafi-chat.y7-solutions.online/health";
     const HEALTH_CHECK_INTERVAL = 10000; // 10 secondes
 
     // === Sélecteurs DOM ===
