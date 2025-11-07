@@ -182,7 +182,7 @@ const TengLaafiChat = (() => {
         showLoadingIndicator();
 
         try {
-            const response = await fetch(API_URL, {
+            const response = await fetch(`${API_URL}/query`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ question, top_k: 3 }),
