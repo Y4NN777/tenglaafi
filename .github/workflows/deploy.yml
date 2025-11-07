@@ -1,0 +1,75 @@
+name: CI/CD - Build, Push & Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: y4nn777/tenglaafi
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Build & tag
+        run: |
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+                       -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
+      
+      - name: Push
+        run: |
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH deploy (pull & restart)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/tenglaafi
+            
+            # Ajouter HF_TOKEN si absent
+            if ! grep -q "HF_TOKEN=" .env && [ -n "${{ secrets.HF_TOKEN }}" ]; then
+              echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> .env
+            fi
+            
+            # Pull et restart
+            docker compose pull
+            docker compose up -d
+            
+            # Healthcheck avec retry
+            echo "Waiting for API to be healthy..."
+            for i in {1..10}; do
+              if curl -fsS http://127.0.0.1:8000/health; then
+                echo " API is healthy!"
+                break
+              fi
+              echo "Attempt $i/10 failed, retrying in 3s..."
+              sleep 3
+            done
+            
+            # Vérifier le statut final
+            if ! curl -fsS http://127.0.0.1:8000/health; then
+              echo " API healthcheck failed after 10 attempts"
+              docker logs tenglaafi_api --tail 50
+              exit 1
+            fi
