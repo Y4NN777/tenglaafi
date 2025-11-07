@@ -4,6 +4,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
 from routes import router
 import logging.config
 
@@ -56,7 +57,20 @@ app.include_router(router)
 app.mount("/", StaticFiles(directory="frontend", html=True), name="static")
 
 
+async def show_routes():
+    """Événement de démarrage pour afficher les routes disponibles."""
+    for r in router.routes:
+        print(f"Route trouvée : {r.path} - Méthodes : {r.methods}")
+        
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Code à exécuter au démarrage
+    await show_routes()
+    yield
+    # Code à exécuter à l'arrêt
+    
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("src.server.main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("src.server.main:app", host="0.0.0.0", port=8000)

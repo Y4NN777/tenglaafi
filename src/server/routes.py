@@ -17,8 +17,9 @@ router = APIRouter()
 # Initialisation du moteur RAG
 rag = RAGPipeline()
 
+    
 
-@router.get("/health")
+@router.get("/health", methods=["GET", "HEAD"])
 async def health_check():
     """Vérifie que le backend et le pipeline RAG fonctionnent."""
     return {"status": "OK", "message": "TengLaafi API est opérationnelle."}
