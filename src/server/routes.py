@@ -19,10 +19,19 @@ rag = RAGPipeline()
 
     
 
-@router.get("/health", methods=["GET", "HEAD"])
+from fastapi import APIRouter, Response
+
+router = APIRouter()
+
+@router.api_route("/health", methods=["GET", "HEAD"])
 async def health_check():
     """Vérifie que le backend et le pipeline RAG fonctionnent."""
-    return {"status": "OK", "message": "TengLaafi API est opérationnelle."}
+    return Response(
+        content='{"status":"OK","message":"TengLaafi API est opérationnelle."}',
+        media_type="application/json",
+        status_code=200
+    )
+
 
 
 @router.post("/query", response_model=QueryResponse)
