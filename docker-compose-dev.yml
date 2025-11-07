@@ -1,7 +1,7 @@
 services:
   api:
     image: ghcr.io/y4nn777/tenglaafi:latest
-    container_name: tenglaafi_api
+    container_name: tenglaafi_rag_chatbot
     env_file: .env
     restart: unless-stopped
     ports:
