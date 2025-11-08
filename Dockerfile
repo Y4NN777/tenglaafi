@@ -20,6 +20,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY src/ ./src/
 COPY frontend/ ./frontend/
 COPY data/ ./data/
+COPY .env ./env
 
 # Create directories for data and index
 RUN mkdir -p chroma_db
