@@ -5,7 +5,7 @@ services:
     env_file: .env
     restart: unless-stopped
     ports:
-      - "127.0.0.1:8000:8000"  # écoute locale; Nginx sera en frontal
+      - "127.0.0.1:8000:8000" 
     volumes:
       - ./chroma_db:/app/chroma_db
       - ./data:/app/data

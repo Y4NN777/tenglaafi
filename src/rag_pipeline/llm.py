@@ -63,7 +63,7 @@ Bonnes pratiques
 - Utiliser `temperature=0.2` pour des réponses cohérentes et stables.
 - En cas d’erreur ou de réponse trop courte, le système réessaie automatiquement (2 tentatives).
 
-Auteur : Équipe Tenglaafi – Hackathon SN 2025
+Auteur : Y4NN777
 """
 
 from typing import List, Dict, Optional
@@ -82,7 +82,7 @@ class MedicalLLM:
     # Modèles recommandés (open source)
     MODELS = {
         # Version exposée en conversational sur HF
-        "mistral": "mistralai/Mistral-7B-Instruct-v0.3",
+        "mistral": "mistralai/Mistral-7B-Instruct-v0.2",
         # Alternatives: à utiliser si exposés en conversational
         "meditron": "epfl-llm/meditron-7b",
         # Llama 2 chat peut aussi être conversational
@@ -175,6 +175,7 @@ class MedicalLLM:
         user_prompt = (
             f" **Contexte médical disponible :**\n{context}\n\n"
             f" **Question :** {question}\n\n"
+            f"**Langue :** Français.\n\n"
             " **Consigne :** Rédige une réponse claire et exacte, "
             "en citant les passages pertinents du contexte. "
             "Si tu n’as pas assez d’informations, indique-le explicitement "

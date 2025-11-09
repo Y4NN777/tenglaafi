@@ -17,11 +17,11 @@ router = APIRouter()
 # Initialisation du moteur RAG
 rag = RAGPipeline()
 
-    
 
 from fastapi import APIRouter, Response
 
 router = APIRouter()
+
 
 @router.api_route("/health", methods=["GET", "HEAD"])
 async def health_check():
@@ -29,9 +29,8 @@ async def health_check():
     return Response(
         content='{"status":"OK","message":"TengLaafi API est opérationnelle."}',
         media_type="application/json",
-        status_code=200
+        status_code=200,
     )
-
 
 
 @router.post("/query", response_model=QueryResponse)

@@ -61,7 +61,7 @@ async def show_routes():
     """Événement de démarrage pour afficher les routes disponibles."""
     for r in router.routes:
         print(f"Route trouvée : {r.path} - Méthodes : {r.methods}")
-        
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -69,7 +69,8 @@ async def lifespan(app: FastAPI):
     await show_routes()
     yield
     # Code à exécuter à l'arrêt
-    
+
+
 if __name__ == "__main__":
     import uvicorn
 
