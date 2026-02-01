@@ -57,21 +57,32 @@ jobs:
           script: |
             set -e
             cd /opt/tenglaafi
+            # COPY FILE FROM GITHUB WORKSPACE
             cp "$GITHUB_WORKSPACE/docker-compose.yml" .
             
+            # Ajouter HF_TOKEN si absent
             if ! grep -q "HF_TOKEN=" .env && [ -n "${{ secrets.HF_TOKEN }}" ]; then
               echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> .env
             fi
             
+            # Pull et restart
             docker compose pull
             docker compose up -d
             
-            echo "Waiting for healthy..."
-            sleep 15
-            if curl -fsS http://127.0.0.1:8000/health; then
-              echo "✅ Deployed!"
-            else
-              echo "❌ Failed"
-              docker logs tenglaafi_rag_chatbot --tail 50
+            # Healthcheck avec retry
+            echo "Waiting for API to be healthy..."
+            for i in {1..30}; do
+              if curl -fsS http://127.0.0.1:8000/health; then
+                echo " API is healthy!"
+                break
+              fi
+              echo "Attempt $i/30 failed, retrying in 3s..."
+              sleep 3
+            done
+            
+            # Vérifier le statut final
+            if ! curl -fsS http://127.0.0.1:8000/health; then
+              echo " API healthcheck failed after 30 attempts"
+              docker logs tenglaafi_api --tail 50
               exit 1
             fi
