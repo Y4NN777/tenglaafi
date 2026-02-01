@@ -235,7 +235,8 @@ class TengLaafiChat {
      * Delete a conversation
      */
     async deleteConversation(sessionId) {
-        if (!confirm('Supprimer cette conversation ?'))
+        const confirmed = await showConfirm('Êtes-vous sûr de vouloir supprimer cette conversation ?', 'Supprimer la conversation');
+        if (!confirmed)
             return;
         await this.sessionManager.deleteSession(sessionId);
         this.chatContainer.innerHTML = '';
@@ -552,8 +553,67 @@ class TengLaafiChat {
         await this.renderConversationList();
     }
 }
+/**
+ * Modal utility functions
+ */
+function showModal(title, message, buttons) {
+    const overlay = document.getElementById('modalOverlay');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalActions = document.getElementById('modalActions');
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+    modalActions.innerHTML = '';
+    buttons.forEach(btn => {
+        const button = document.createElement('button');
+        button.className = `modal-btn ${btn.className || ''}`;
+        button.textContent = btn.text;
+        button.onclick = () => {
+            overlay.classList.remove('active');
+            if (btn.onClick)
+                btn.onClick();
+        };
+        modalActions.appendChild(button);
+    });
+    overlay.classList.add('active');
+    overlay.onclick = (e) => {
+        if (e.target === overlay) {
+            overlay.classList.remove('active');
+        }
+    };
+}
+function showConfirm(message, title = 'Confirmation') {
+    return new Promise((resolve) => {
+        showModal(title, message, [
+            {
+                text: 'Annuler',
+                className: 'modal-btn-cancel',
+                onClick: () => resolve(false)
+            },
+            {
+                text: 'Confirmer',
+                className: 'modal-btn-danger',
+                onClick: () => resolve(true)
+            }
+        ]);
+    });
+}
+function showAlert(message, title = 'Information') {
+    return new Promise((resolve) => {
+        showModal(title, message, [
+            {
+                text: 'OK',
+                className: 'modal-btn-confirm',
+                onClick: () => resolve(true)
+            }
+        ]);
+    });
+}
 // Initialize on DOM load
 const chat = new TengLaafiChat();
 window.tengLaafiChat = chat;
+window.showModal = showModal;
+window.showConfirm = showConfirm;
+window.showAlert = showAlert;
 document.addEventListener('DOMContentLoaded', () => chat.init());
 //# sourceMappingURL=app.js.map
