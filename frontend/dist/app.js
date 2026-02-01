@@ -5,7 +5,7 @@
 import { SessionManager } from './session.js';
 class TengLaafiChat {
     constructor() {
-        this.API_URL = "";
+        this.API_URL = "/tenglaafi";
         this.HEALTH_CHECK_INTERVAL = 10000;
         this.loadingElement = null;
         this.loadingInterval = null;
