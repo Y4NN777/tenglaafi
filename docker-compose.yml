@@ -1,0 +1,17 @@
+services:
+  api:
+    image: ghcr.io/y4nn777/tenglaafi:latest
+    container_name: tenglaafi_rag_chatbot
+    env_file: .env
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./chroma_db:/app/chroma_db
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
