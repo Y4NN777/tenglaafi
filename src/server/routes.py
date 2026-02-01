@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
-from models import QueryRequest, QueryResponse
+from src.server.models import QueryRequest, QueryResponse
 
 import sys
 from pathlib import Path

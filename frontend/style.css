@@ -60,6 +60,7 @@ body {
     height: 100vh;
     display: flex;
     overflow: hidden;
+    font-size: 15px;
 }
 
 /* ── SIDEBAR ──────────────────────────────── */
