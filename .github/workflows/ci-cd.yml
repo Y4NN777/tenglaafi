@@ -57,56 +57,32 @@ jobs:
           script: |
             set -e
             cd /opt/tenglaafi
-            
-            # CREATE docker-compose.yml
-            cat > docker-compose.yml << 'EOF'
-            version: "3.9"
-            services:
-              api:
-                image: ghcr.io/y4nn777/tenglaafi:latest
-                container_name: tenglaafi_rag_chatbot
-                env_file: .env
-                restart: unless-stopped
-                ports:
-                  - "127.0.0.1:8000:8000"
-                volumes:
-                  - ./chroma_db:/app/chroma_db
-                  - ./data:/app/data
-                healthcheck:
-                  test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-                  interval: 30s
-                  timeout: 5s
-                  retries: 3
-                  start_period: 10s
-            EOF &&
-              
-            # Create persistent storage directories
+
+            # Update repo
+            git pull origin main
+
+            # Ensure persistent directories exist
             mkdir -p chroma_db data
-            
-            # Add HF_TOKEN si absent
+
+            # Ensure HF_TOKEN exists
             if ! grep -q "HF_TOKEN=" .env && [ -n "${{ secrets.HF_TOKEN }}" ]; then
               echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> .env
             fi
-            
-            # Pull et restart
+
+            # Pull new image & restart
             docker compose pull
-            docker compose up -d
-            
-            # Healthcheck avec retry (FIXED URLS)
-            echo "Waiting for API to be healthy..."
+            docker compose up -d --remove-orphans
+
+            # Healthcheck
+            echo "Waiting for API..."
             for i in {1..30}; do
               if curl -fsS http://127.0.0.1:8000/health; then
-                echo "✅ API is healthy!"
-                break
+                echo "API healthy"
+                exit 0
               fi
-              echo "Attempt $i/30 failed, retrying in 3s..."
               sleep 3
             done
-            
-            # Vérifier le statut final (FIXED container name)
-            if ! curl -fsS http://127.0.0.1:8000/health; then
-              echo "❌ API healthcheck failed after 30 attempts"
-              docker logs tenglaafi_rag_chatbot --tail 50
-              exit 1
-            fi
-            echo "🚀 Deployment complete!"
+
+            echo "Healthcheck failed"
+            docker logs tenglaafi_rag_chatbot --tail 50
+            exit 1
