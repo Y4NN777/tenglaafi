@@ -1,22 +1,42 @@
-# Use Python 3.12 slim for smaller image
-FROM python:3.12-slim AS base
+# Multi-stage build for smaller image
+FROM python:3.12-slim AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy requirements first for better caching
-COPY requirements.txt .
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
+# Copy requirements
+COPY requirements-prod.txt .
+
+# Install PyTorch CPU-only (much smaller than default with CUDA)
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir -r requirements-prod.txt
 
-# Copy source code
+# Final stage - minimal runtime
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Install only runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy Python packages from builder
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Copy application code
 COPY src/ ./src/
 COPY frontend/ ./frontend/
 COPY data/ ./data/
 
-# Create directories for data and index
+# Create directories
 RUN mkdir -p chroma_db
 
 # Expose port

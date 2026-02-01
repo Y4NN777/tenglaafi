@@ -1,0 +1,22 @@
+# Core RAG
+fastapi
+uvicorn[standard]
+python-dotenv
+langchain-community
+langchain-text-splitters>=0.2
+
+# Embeddings & Vector Store
+sentence-transformers
+chromadb
+numpy
+
+# LLM
+langchain-huggingface
+
+# Data Collection
+requests
+beautifulsoup4
+aiohttp
+
+# Essential only
+pydantic
