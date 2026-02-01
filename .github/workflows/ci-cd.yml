@@ -44,10 +44,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: appleboy/ssh-action@v1.0.3
+        env:
+          SSH_STRICT_HOSTKEY_CHECKING: no
+          SSH_CONNECT_TIMEOUT: 10
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          use_insecure_cipher: true
+          timeout: 30s
           script: |
             set -e
             cd /opt/tenglaafi
