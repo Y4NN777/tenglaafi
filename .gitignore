@@ -146,3 +146,5 @@ rapport.md
 reports/
 data/sources_failed.jsonnode_modules/
 frontend/dist/
+frontend/node_modules/
+frontend/dist/
