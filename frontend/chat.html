@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TengLaafi — Assistant Santé</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="logo.jpg" type="image/jpeg">
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link id="hljsTheme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <!-- Mobile overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="conversationSidebar">
+        <div class="sidebar-header">
+            <h2>Conversations</h2>
+            <button id="closeSidebarBtn" class="sidebar-close-btn" title="Fermer">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <button id="sidebarNewChatBtn" class="sidebar-new-chat-btn">
+            <i class="fas fa-plus"></i>
+            <span>Nouvelle conversation</span>
+        </button>
+        <div class="conversation-list" id="conversationList"></div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main-content">
+
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-section">
+                <button id="menuToggleBtn" class="menu-toggle-btn" title="Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo"><img src="logo.jpg" alt="TengLaafi"></div>
+                <div class="brand-name">TengL<span class="accent">aa</span>fi</div>
+            </div>
+            <div class="header-actions">
+                <button id="newChatButton" class="header-btn primary">
+                    <i class="fas fa-plus"></i>
+                    Nouveau
+                </button>
+                <a href="index.html" class="header-btn">
+                    <i class="fas fa-home"></i>
+                    Accueil
+                </a>
+                <button id="themeToggleBtn" class="theme-toggle-btn" title="Basculer le thème">
+                    <i class="fas fa-sun icon-sun"></i>
+                    <i class="fas fa-moon icon-moon"></i>
+                </button>
+                <div class="status-indicator" id="statusIndicator" title="Backend: Déconnecté"></div>
+            </div>
+        </div>
+
+        <!-- Chat -->
+        <div class="chat-container" id="chatContainer">
+        </div>
+
+        <!-- Example queries -->
+        <div class="example-queries" id="exampleQueries">
+            <div class="example-queries-label">Questions suggérées</div>
+            <div class="example-queries-list">
+                <button class="example-query-btn" data-query="Quels sont les symptômes du paludisme ?">
+                    <i class="fas fa-info-circle example-query-icon"></i>
+                    Symptômes du paludisme
+                </button>
+                <button class="example-query-btn" data-query="Comment prévenir la dengue ?">
+                    <i class="fas fa-shield-alt example-query-icon"></i>
+                    Prévention de la dengue
+                </button>
+                <button class="example-query-btn" data-query="Quelles plantes médicinales traitent le paludisme ?">
+                    <i class="fas fa-book-open example-query-icon"></i>
+                    Plantes contre le paludisme
+                </button>
+                <button class="example-query-btn" data-query="Quelle est la différence entre paludisme et dengue ?">
+                    <i class="fas fa-search example-query-icon"></i>
+                    Paludisme vs Dengue
+                </button>
+                <button class="example-query-btn" data-query="Comment utiliser l'Artemisia pour traiter la fièvre ?">
+                    <i class="fas fa-leaf example-query-icon"></i>
+                    Utilisation de l'Artemisia
+                </button>
+            </div>
+        </div>
+
+        <!-- Input -->
+        <div class="input-container">
+            <div class="input-wrapper">
+                <input type="text" id="messageInput" placeholder="Posez votre question..." autocomplete="off">
+                <button class="send-button" id="sendButton" title="Envoyer">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module" src="dist/app.js"></script>
+</body>
+</html>
