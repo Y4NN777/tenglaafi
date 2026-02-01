@@ -58,22 +58,15 @@ jobs:
             set -e
             cd /opt/tenglaafi
 
-            # Update repo
-            git pull origin main
-
-            # Ensure persistent directories exist
             mkdir -p chroma_db data
 
-            # Ensure HF_TOKEN exists
             if ! grep -q "HF_TOKEN=" .env && [ -n "${{ secrets.HF_TOKEN }}" ]; then
               echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> .env
             fi
 
-            # Pull new image & restart
             docker compose pull
             docker compose up -d --remove-orphans
 
-            # Healthcheck
             echo "Waiting for API..."
             for i in {1..30}; do
               if curl -fsS http://127.0.0.1:8000/health; then
