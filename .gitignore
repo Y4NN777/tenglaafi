@@ -144,4 +144,5 @@ tmp/
 # Reports
 rapport.md
 reports/
-data/sources_failed.json
+data/sources_failed.jsonnode_modules/
+frontend/dist/
