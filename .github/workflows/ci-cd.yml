@@ -58,7 +58,7 @@ jobs:
             set -e
             cd /opt/tenglaafi
 
-            mkdir -p chroma_db data
+            mkdir -p chroma_db
 
             if ! grep -q "HF_TOKEN=" .env && [ -n "${{ secrets.HF_TOKEN }}" ]; then
               echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> .env
@@ -68,7 +68,7 @@ jobs:
             docker compose up -d --remove-orphans
 
             echo "Waiting for API..."
-            for i in {1..30}; do
+            for i in {1..100}; do
               if curl -fsS http://127.0.0.1:8000/health; then
                 echo "API healthy"
                 exit 0
