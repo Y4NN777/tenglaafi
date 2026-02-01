@@ -1,78 +1,92 @@
-# TengLaafi - Assistant Conversationel RAG Open Source
+# TengLaafi - Conversational RAG Medical Assistant
 
-**Assistant  IA spécialisé dans les maladies tropicales et plantes médicinales**
+**Specialized AI assistant for tropical diseases and African medicinal plants**
 
 [![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://python.org)
 [![ChromaDB](https://img.shields.io/badge/ChromaDB-100%25%20Open%20Source-green.svg)](https://www.trychroma.com/)
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-Mistral%207B-yellow.svg)](https://huggingface.co)
 [![LangChain](https://img.shields.io/badge/LangChain-orange.svg)](https://python.langchain.com)
-
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 ---
 
-##  Sujet Choisi et Justification
+## About This Project
 
-**Domaine:** Santé - Maladies Tropicales et Plantes Médicinales
+TengLaafi began as a pre-qualifying submission for a hackathon focused on healthcare innovation in African contexts. Following its initial success, Y7 Labs has continued its development with significant enhancements in retrieval accuracy, response quality, and architectural robustness.
 
-**Justification:**
-- **Pertinence locale:** Burkina Faso = zone tropicale avec forte prévalence de maladies comme le paludisme, la dengue, la leishmaniose
-- **Besoin réel:** Accès limité à l'information médicale fiable en français
-- **Patrimoine traditionnel:** Riche connaissance des plantes médicinales africaines (Artemisia, Neem, etc.)
-- **Impact social:** Système d'information accessible 24/7 pour sensibilisation et prévention
+The system combines Retrieval-Augmented Generation (RAG) with a curated corpus of 1,531 medical documents to provide evidence-based responses about tropical diseases and traditional African medicinal plants. All user-facing content is delivered in French.
+
+**TengLaafi** comes from two words in Mooré:
+- **Tenga**: the earth, the territory
+- **Laafi**: health, well-being, peace
+
+Together, they form "TengLaafi" — health rooted in the land. This name embodies an AI health assistant anchored in Burkinabé knowledge, connecting modern medical research with local natural and cultural values.
 
 ---
 
-##  Architecture Technique
+## Project Rationale
 
-### Pipeline RAG Complet
+**Domain:** Healthcare - Tropical Diseases and Medicinal Plants
+
+**Justification:**
+- **Local Relevance:** Burkina Faso is a tropical region with high prevalence of diseases such as malaria, dengue, and leishmaniasis
+- **Information Gap:** Limited access to reliable medical information in French
+- **Traditional Heritage:** Rich knowledge base of African medicinal plants (Artemisia, Neem, etc.)
+- **Social Impact:** 24/7 accessible information system for awareness and prevention
+
+---
+
+## Technical Architecture
+
+### Complete RAG Pipeline
+
 ```
 ┌─────────────┐      ┌──────────────┐      ┌─────────────┐
-│   Question  │─────▶│  Embeddings  │─────▶│  ChromaDB   │
-│ Utilisateur │      │ (768-dim)    │      │  (Vector    │
+│   User      │─────▶│  Embeddings  │─────▶│  ChromaDB   │
+│  Question   │      │  (768-dim)   │      │  (Vector    │
 └─────────────┘      └──────────────┘      │   Search)   │
                                            └──────┬──────┘
                                                   │
                                             Top-5 Documents
                                                   │
 ┌─────────────┐      ┌──────────────┐      ┌──────▼─────┐
-│   Réponse   │◀─────│  HuggingFace │◀─────│  Context   │
-│ + Sources   │      │     LLM      │      │  Builder   │
+│   Response  │◀─────│  HuggingFace │◀─────│  Context   │
+│  + Sources  │      │     LLM      │      │  Builder   │
 └─────────────┘      └──────────────┘      └────────────┘
 ```
 
-### Stack Technique
+### Technology Stack
 
-#### LLM et Orchestration
-| Composant | Technologie | Description |
+#### LLM and Orchestration
+| Component | Technology | Description |
 |-----------|-------------|-------------|
-| **Modèle LLM** | Mistral-7B-Instruct-v0.2 | LLM open source, optimisé pour le français |
-| **API LLM** | HuggingFace Inference API | Interface REST pour inférence LLM |
-| **Orchestration** | LangChain | Framework d'orchestration RAG |
+| **LLM Model** | Mistral-7B-Instruct-v0.2 | Open-source LLM optimized for French |
+| **LLM API** | HuggingFace Inference API | REST interface for LLM inference |
+| **Orchestration** | LangChain | RAG framework for prompt chaining |
 
-#### Base de Données et Embeddings
-| Composant | Technologie | Description |
+#### Database and Embeddings
+| Component | Technology | Description |
 |-----------|-------------|-------------|
-| **Embeddings** | `paraphrase-multilingual-mpnet-base-v2` | Transformation texte → vecteurs (768-dim) |
-| **Base Vectorielle** | ChromaDB 0.4.18 | Stockage et recherche par similarité |
+| **Embeddings** | `paraphrase-multilingual-mpnet-base-v2` | Text to 768-dim vectors |
+| **Vector Database** | ChromaDB 0.4.18 | Persistent vector storage with similarity search |
 
-#### Backend et Frontend
-| Composant | Technologie | Description |
+#### Backend and Frontend
+| Component | Technology | Description |
 |-----------|-------------|-------------|
-| **Backend** | FastAPI   | API REST avec validation |
-| **Frontend** | HTML/Tailwind CSS/JS | Interface utilisateur responsive |
+| **Backend** | FastAPI | REST API with Pydantic validation |
+| **Frontend** | TypeScript/Tailwind CSS | Responsive interface with conversation persistence |
 
-### Configuration HuggingFace et LangChain
+### HuggingFace and LangChain Configuration
 
 ```python
-# Configuration HuggingFace
+# HuggingFace Configuration
 MODELS = {
-    "mistral": "mistralai/Mistral-7B-Instruct-v0.2",  # Modèle principal
+    "mistral": "mistralai/Mistral-7B-Instruct-v0.2",  # Primary model
     "llama": "meta-llama/Llama-2-7b-chat-hf",         # Alternative
-    "meditron": "epfl-llm/meditron-7b"                # Spécialisé médical
+    "meditron": "epfl-llm/meditron-7b"                # Medical specialist
 }
 
-# Configuration LangChain
+# LangChain Configuration
 from langchain_huggingface import HuggingFaceEndpoint
 
 llm = HuggingFaceEndpoint(
@@ -86,19 +100,19 @@ llm = HuggingFaceEndpoint(
 )
 ```
 
-**Caractéristiques LLM:**
-- Modèle: Mistral-7B-Instruct (7 milliards de paramètres)
-- Performance FR: Excellent support du français
-- Contexte: 8k tokens (permet l'intégration de plusieurs documents)
-- Prompts: Format instruction optimisé
+**LLM Characteristics:**
+- Model: Mistral-7B-Instruct (7 billion parameters)
+- French Performance: Excellent French language support
+- Context: 8k tokens (allows integration of multiple documents)
+- Prompts: Instruction-optimized format
 
-**Caractéristique LangChain:**
-- Gestion du contexte et historique
-- Formatage automatique des prompts
-- Chaînage des composants RAG
-- Gestion des sources et citations
+**LangChain Features:**
+- Context and history management
+- Automatic prompt formatting
+- RAG component chaining
+- Source tracking and citations
 
-**Liens vers licences:**
+**Open Source Licenses:**
 - ChromaDB: https://github.com/chroma-core/chroma/blob/main/LICENSE
 - Sentence-Transformers: https://github.com/UKPLab/sentence-transformers/blob/master/LICENSE
 - HuggingFace Transformers: https://github.com/huggingface/transformers/blob/main/LICENSE
@@ -106,179 +120,143 @@ llm = HuggingFaceEndpoint(
 - LangChain: https://github.com/langchain-ai/langchain/blob/master/LICENSE
 - Mistral-7B: https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2/blob/main/LICENSE
 - MPNet: https://huggingface.co/sentence-transformers/paraphrase-multilingual-mpnet-base-v2/blob/main/LICENSE
-- Python: https://docs.python.org/3/license.html
-- Tailwind CSS: https://github.com/tailwindlabs/tailwindcss/blob/master/LICENSE
 
 ---
 
-##  Corpus de Données
+## Data Corpus
 
-### Sources (500+ documents)
+### Sources (1,531 documents)
 
-| Source | Nombre | Type | Description |
+| Source | Count | Type | Description |
 |--------|--------|------|-------------|
-| **WHO** | 23 | Web scraping | Factsheets maladies tropicales |
-| **PubMed** | 254 | API publique | Articles scientifiques peer-reviewed |
-| **PDFs Locaux** | 1243 | Documents | Guides médicaux, thèses, rapports |
-| **Plantes Médicinales** | 11| Multi-sources | Base de données ethnobotaniques |
-| **TOTAL** | **500+**(1531) | | **Corpus validé** |
+| **WHO** | 23 | Web scraping | Tropical disease factsheets |
+| **PubMed** | 254 | Public API | Peer-reviewed scientific articles |
+| **Local PDFs** | 1,243 | Documents | Medical guides, theses, reports |
+| **Medicinal Plants** | 11 | Multi-source | Ethnobotanical databases |
+| **TOTAL** | **1,531** | | **Validated corpus** |
 
+**Delivered Files:**
+- `data/corpus.json` - Structured corpus (1,531 documents)
+- `data/sources.txt` - Complete URLs and references
 
+### Covered Topics
 
-**Fichiers livrés:**
-- `data/corpus.json` - Corpus structuré (500+ documents)
-- `data/sources.txt` - URLs et références complètes
-
-### Thématiques Couvertes
-
-- Paludisme (Plasmodium, Anophèle, Artemisia)
-- Dengue et fièvres hémorragiques
-- Leishmaniose cutanée/viscérale
-- Schistosomiase
-- Plantes médicinales africaines (Neem, Moringa, etc.)
-- Médecine traditionnelle burkinabè
+- Malaria (Plasmodium, Anopheles, Artemisia)
+- Dengue and hemorrhagic fevers
+- Cutaneous/visceral leishmaniasis
+- Schistosomiasis
+- African medicinal plants (Neem, Moringa, etc.)
+- Burkinabé traditional medicine
 
 ---
 
-##  Structure du Projet
+## Project Structure
 
 ```
+.
+├── chroma_db/                           # Persistent ChromaDB vector store
 │
-├── app.log                              # logs d’exécution (temporaire / ignoré par git)
-│
-├── chroma_db/                           # base locale pour la base vectorielle Chroma (embeddings)
-│
-├── data/                                # jeux de données utilisés par le projet
-│   ├── corpus.json                      # corpus consolidé pour le RAG
-│   ├── sources.txt                      # liste des sources textuelles importées
-│   │
-│   └── raw/                             # données sources brutes non nettoyées
+├── data/                                # Project datasets
+│   ├── corpus.json                      # Consolidated RAG corpus
+│   ├── sources.txt                      # Source reference list
+│   └── raw/                             # Raw unprocessed data
 │       ├── 2013_pharmacopee_des_plantes_medicinales_afrique_ouest.pdf
 │       ├── african_traditional_medicine_e.pdf
 │       └── oms_burkina_faso_bulletin_information_t2_2025.pdf
 │
-├── docs/                                # documentation technique et fonctionnelle du projet
-│   ├── API.md                           # spécification de l’API
-│   ├── ARCHITECTURE.md                  # schéma et organisation technique
-│   ├── CONTRIBUTING.md                  # règles de contribution au code
-│   └── EVALUATION.md                    # description de la méthodologie d’évaluation
+├── docs/                                # Technical and functional documentation
+│   ├── API.md                           # API specification
+│   ├── ARCHITECTURE.md                  # Technical architecture overview
+│   ├── CONTRIBUTING.md                  # Contribution guidelines
+│   └── EVALUATION.md                    # Evaluation methodology
 │
-├── evaluation/                          # ensemble des scripts et résultats d’évaluation du modèle
-│   ├── evaluation_results/              # fichiers de résultats (CSV, JSON)
+├── evaluation/                          # Model evaluation scripts and results
+│   ├── evaluation_results/              # Results (CSV, JSON)
 │   │   ├── evaluation_results.csv
 │   │   └── evaluation_results.json
-│   │
-│   ├── questions.json                   # 20 questions pour l’évaluation
-│   │
-│   ├── scripts/                         # scripts d’évaluation et de métriques
+│   ├── questions.json                   # 20 evaluation questions
+│   ├── scripts/                         # Evaluation and metrics scripts
 │   │   ├── evaluate.py
 │   │   └── metrics.py
-│   │
-│   └── tests/                           # tests unitaires et d’intégration liés à l’évaluation
-│       ├── conftest.py                  # configuration pytest commune
-│       │
-│       ├── integration/                 # tests d’intégration finaux du pipeline
+│   └── tests/                           # Unit and integration tests
+│       ├── conftest.py                  # pytest configuration
+│       ├── integration/                 # Integration tests
 │       │   ├── test_api_integration.py
 │       │   └── test_rag_pipeline.py
-│       │
-│       ├── unit/                        # tests unitaires par module
-│       │   ├── test_api.py
-│       │   ├── test_data_utils.py
-│       │   ├── test_embeddings.py
-│       │   ├── test_llm.py
-│       │   └── test_vector_store.py
-│       │
-│       └── tests_results/               # captures et logs des tests automatisés
-│           ├── collected_data_stats.png
-│           ├── data_utils_tests_screenshot.png
-│           ├── embeddings_tests_screenshots.png
-│           ├── llm_tests_screenshot.png
-│           ├── rag_pipeline_test_screenshot.png
-│           ├── tests.log
-│           ├── vector_store_index_screenshot.png
-│           └── vector_store_tests_screenshots.png
+│       └── unit/                        # Unit tests by module
+│           ├── test_api.py
+│           ├── test_data_utils.py
+│           ├── test_embeddings.py
+│           ├── test_llm.py
+│           └── test_vector_store.py
 │
-├── frontend/                            # interface web (client)
-│   ├── index.html                       # page principale
-│   ├── app.js                           # logique front-end
-│   ├── style.css                        # styles de l’interface
-│   └── logo.jpg                         # logo du projet
+├── frontend/                            # Web interface (client)
+│   ├── chat.html                        # Main chat interface
+│   ├── index.html                       # Landing page
+│   ├── landing.html                     # Alternative landing page
+│   ├── app.ts                           # Main chat application logic
+│   ├── session.ts                       # Session management (IndexedDB)
+│   ├── types.ts                         # TypeScript interfaces
+│   ├── style.css                        # Interface styles
+│   └── logo.jpg                         # Project logo
 │
-├── logs/                                # répertoire des journaux (non versionné)
-│
-├── research/                            # espace de recherche / expérimentations et notebooks
-│
-├── src/                                 # code source principal du backend et du pipeline RAG
-│   ├── core/                            # configuration globale et constantes
+├── src/                                 # Backend source code
+│   ├── core/                            # Global configuration
 │   │   └── config.py
-│   │
-│   ├── data_collection/                 # scripts de collecte des données initiales
+│   ├── data_collection/                 # Data collection scripts
 │   │   └── tropical_medical_data_collector.py
-│   │
-│   ├── rag_pipeline/                    # modules du pipeline RAG (embeddings, LLM, vector store, etc.)
+│   ├── rag_pipeline/                    # RAG pipeline modules
 │   │   ├── data_utils.py
 │   │   ├── embeddings.py
 │   │   ├── llm.py
 │   │   ├── rag.py
 │   │   └── vector_store.py
-│   │
-│   ├── scripts/                         # scripts utilitaires (indexation, maintenance, etc.)
+│   ├── scripts/                         # Utility scripts
 │   │   └── store_index.py
-│   │
-│   └── server/                          # API backend (FastAPI ou équivalent)
-│       ├── main.py                      # point d’entrée de l’API
-│       ├── models.py                    # modèles Pydantic ou ORM
-│       └── routes.py                    # définition des endpoints
+│   └── server/                          # FastAPI backend
+│       ├── main.py                      # API entry point
+│       ├── models.py                    # Pydantic models
+│       └── routes.py                    # API endpoints
 │
-├── LICENSE                              # licence du projet
-|
-├── Makefile                             # commandes automatisées (build, tests, etc.)
-|
-├── pytest.ini                           # configuration des tests Pytest
-|
-├── rapport.md                           # rapport de synthèse ou document final du projet
-|
-├── README.md                            # description du projet (vue d’ensemble)
-|
-└── requirements.txt                     # dépendances Python nécessaires
-
+├── LICENSE                              # MIT License
+├── Makefile                             # Automated commands
+├── pytest.ini                           # pytest configuration
+├── README.md                            # Project overview
+└── requirements.txt                     # Python dependencies
 ```
 
 ---
 
 ## Installation
 
-### Prérequis
+### Prerequisites
 
-* Python **3.12+**, **Make**, 4 Go RAM mini
-* Token HuggingFace dans `.env` → `HF_TOKEN=...`
-* Connexion Internet (première installation uniquement)
-* Conda (recommandé) **ou** venv (fallback pip)
+* Python 3.12+, Make, 4 GB RAM minimum
+* HuggingFace token in `.env` → `HF_TOKEN=...`
+* Internet connection (first installation only)
+* Conda (recommended) or venv (fallback pip)
 
-### Installer Make (si absent)
+### Install Make (if absent)
 
 **Linux (Debian/Ubuntu)**
-
 ```bash
 sudo apt-get update && sudo apt-get install -y build-essential make
 ```
 
 **macOS**
-
 ```bash
 xcode-select --install   # Make via Command Line Tools
 ```
 
 **Windows**
-
 ```bash
 # Option A: via Chocolatey
 choco install make
-# Option B: via WSL (Ubuntu) puis utiliser la commande Linux ci‑dessus
-# Option C: Git Bash (inclut souvent make)
+# Option B: via WSL (Ubuntu) then use Linux command above
+# Option C: Git Bash (often includes make)
 ```
 
-### Mise en place et installation rapide avec Conda (recommandé)
+### Quick Setup with Conda (Recommended)
 
 ```bash
 git clone https://github.com/Y4NN777/tenglaafi.git
@@ -286,13 +264,13 @@ cd tenglaafi
 conda create -n tenglaafi python=3.12 -y
 conda activate tenglaafi
 pip install -r requirements.txt
-cp .env.example .env   # puis renseigner HF_TOKEN
+cp .env.example .env   # then add HF_TOKEN
 make setup
-make index              # indexe le corpus dans ChromaDB
-make run                # lance l'API → http://localhost:8000
+make index              # Index corpus into ChromaDB
+make run                # Launch API → http://localhost:8000
 ```
 
-### Fallback sans Conda (venv + pip)
+### Fallback without Conda (venv + pip)
 
 ```bash
 python -m venv venv
@@ -301,11 +279,11 @@ source venv/bin/activate
 # Windows
 venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env   # puis renseigner HF_TOKEN
+cp .env.example .env   # then add HF_TOKEN
 make setup && make index && make run
 ```
 
-### Vérification
+### Verification
 
 ```bash
 curl http://localhost:8000/health
@@ -314,54 +292,140 @@ curl http://localhost:8000/health
 
 ---
 
-## Commandes Make (principales)
+## Key Commands (via Makefile)
 
 ```bash
-make setup          # Config initiale (env, dossiers, etc.)
-make collect        # (Optionnel) collecte/rafraîchissement des données
-make index          # Indexer le corpus dans ChromaDB
-make run            # Lancer le serveur FastAPI
-make clean          # Nettoyage (artéfacts, caches)
+make setup          # Initial configuration (env, directories, etc.)
+make collect        # (Optional) Refresh/collect data
+make index          # Index corpus into ChromaDB
+make run            # Start FastAPI server
+make clean          # Clean artifacts and caches
 
-# Tests
-make test           # Tous les tests
-make test-unit      # Tests unitaires
-make test-integration  # Tests d'intégration
+# Testing
+make test           # All tests
+make test-unit      # Unit tests only
+make test-integration  # Integration tests only
 
-# Évaluation (20 questions)
-make evaluate       # Génère JSON + CSV d’évaluation
+# Evaluation (20 questions)
+make evaluate       # Generate JSON + CSV evaluation results
 ```
 
 ---
 
-## Évaluation (résumé)
+## Evaluation Summary
 
-* Dataset : **20 questions**
-* Script : `evaluation/scripts/evaluate.py` (appelé via `make evaluate`)
-* Sorties :
-
+* Dataset: 20 questions
+* Script: `evaluation/scripts/evaluate.py` (invoked via `make evaluate`)
+* Outputs:
   * `evaluation/evaluation_results/evaluation_results.json`
   * `evaluation/evaluation_results/evaluation_results.csv`
 
-**Scores moyens observés**
+**Average Scores**
 
-| Métrique              | Valeur         |
+| Metric | Value |
 | --------------------- | -------------- |
-| Précision Retrieval   | **0.4483**     |
-| Complétude Réponse    | **0.4558**     |
-| Similarité Sémantique | **0.607**      |
-| Pertinence (/5)       | **≈ 2.73 / 5** |
-| Temps de réponse      | **≈ 2.39 s**   |
+| Retrieval Precision | 0.4483 |
+| Response Completeness | 0.4558 |
+| Semantic Similarity | 0.607 |
+| Relevance (/5) | ~2.73 / 5 |
+| Response Time | ~2.39s |
 
-> Analyse complète : `docs/EVALUATION.md`.
+Complete analysis: `docs/EVALUATION.md`
 
 ---
 
-##  Signification du Nom
+## Configuration
 
-**TengLaafi** vient de deux mots en mooré :
-- **Tenga** (🌍) : la terre, le territoire
-- **Laafi** (💚) : la santé, le bien-être, la paix
+All environment variables are in `.env` (copy from `.env.example`):
 
-- Ensemble, ces mots forment "TengLaafi" - *la santé enracinée dans la terre*. Ce nom symbolise une IA de santé ancrée dans les savoirs du Burkina, reliant la connaissance médicale moderne aux valeurs naturelles et culturelles locales.
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `HF_TOKEN` | — (required) | HuggingFace API token for LLM inference |
+| `LLM_MODEL` | `HuggingFaceH4/zephyr-7b-alpha` | LLM model on HuggingFace Hub |
+| `CHROMA_PERSIST_DIR` | `./chroma_db` | ChromaDB storage path |
+| `CHROMA_COLLECTION_NAME` | `tropical_medicine` | ChromaDB collection name |
+| `API_HOST` | `0.0.0.0` | FastAPI bind address |
+| `API_PORT` | `8000` | FastAPI port |
+
+Key constants in `src/core/config.py` (not env-overridable):
+- `EMBEDDING_MODEL`: `paraphrase-multilingual-mpnet-base-v2`
+- `EMBEDDING_DIMENSION`: 768
+- `TOP_K_DOCUMENTS`: 5
+- `CHUNK_SIZE`: 1000
+- `CHUNK_OVERLAP`: 200
+- `LLM_MAX_TOKENS`: 512
+- `LLM_TEMPERATURE`: 0.2
+
 ---
+
+## Corpus Format
+
+`data/corpus.json` is a JSON array. Each entry:
+
+```json
+{
+  "id": 123,
+  "title": "Document title",
+  "text": "Full document text...",
+  "url": "https://source.url",
+  "source": "WHO|PubMed|Local",
+  "length": 2500,
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+Minimum 500 documents required (enforced by validation).
+
+---
+
+## Testing Conventions
+
+- Test root: `evaluation/tests/` (configured in `pytest.ini`)
+- Mark integration tests: `@pytest.mark.integration`
+- Mark slow tests: `@pytest.mark.slow`
+- Run a single test file: `make individual-unit-test TEST=<path>`
+- Or directly: `pytest evaluation/tests/unit/test_embeddings.py -v`
+
+---
+
+## Common Issues
+
+- **"Index empty" on startup**: `chroma_db/` is empty or missing. Run `make index`.
+- **HF_TOKEN missing**: `.env` file not created or token not set. Copy `.env.example` and add your token from [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens).
+- **ChromaDB errors in tests**: Stale vector store. Delete `chroma_db/` and run `make index`.
+- **Import errors**: Must run commands from the project root directory.
+- **Changing the embedding model**: Update `EMBEDDING_MODEL` and `EMBEDDING_DIMENSION` in `src/core/config.py`, then run `make reindex`.
+
+---
+
+## Contributing
+
+Contributions are welcome. See `docs/CONTRIBUTING.md` for guidelines.
+
+---
+
+## License
+
+MIT License - See [LICENSE](LICENSE) for details.
+
+---
+
+## Contact
+
+- **Developer:** Y4NN777
+- **GitHub:** [github.com/Y4NN777/tenglaafi](https://github.com/Y4NN777/tenglaafi)
+- **Email:** y4nn.dev@gmail.com
+- **Project URL:** [y7labs.studio/tenglaafi](https://y7labs.studio/tenglaafi)
+- **Organization:** Y7 Labs
+
+---
+
+## Acknowledgments
+
+This project was initially developed as a pre-qualifying submission for a healthcare innovation hackathon. Y7 Labs has continued its development with enhanced retrieval mechanisms, improved response generation, and architectural refinements.
+
+Special thanks to the open-source community for the foundational technologies that make this project possible.
+
+---
+
+**TengLaafi** - Health rooted in the land.
