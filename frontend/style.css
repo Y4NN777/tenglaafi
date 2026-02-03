@@ -644,6 +644,8 @@ body {
     border: 1px solid var(--border);
     overflow: hidden;
     transition: all 0.3s ease;
+    position: relative;
+    z-index: 200;
 }
 
 .sources-container.collapsed {
