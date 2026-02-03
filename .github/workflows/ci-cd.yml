@@ -71,6 +71,11 @@ jobs:
             for i in {1..100}; do
               if curl -fsS http://127.0.0.1:8000/health; then
                 echo "API healthy"
+
+                # Clean up old images to prevent disk space issues
+                echo "Cleaning up old Docker images..."
+                docker image prune -a -f
+
                 exit 0
               fi
               sleep 3
